@@ -1,10 +1,8 @@
 [
-  {"id":1,"timestamp":"2025-01-24T14:32:00Z","text":"eth showing strength at 3.2k support. volume profile suggests accumulation. watching for breakout above 3.4k.","tags":["ETH","BTC"]},
-  {"id":2,"timestamp":"2025-01-24T11:15:00Z","text":"sol ecosystem activity spiking — new dex volumes hitting ath. this isn't retail, this is infrastructure money.","tags":["SOL"]},
-  {"id":3,"timestamp":"2025-01-23T22:40:00Z","text":"btc dominance declining while alts hold. classic rotation signal. mid-caps about to move.","tags":["BTC"]},
-  {"id":4,"timestamp":"2025-01-23T16:05:00Z","text":"stablecoin inflows accelerating on-chain. dry powder building. someone knows something.","tags":["USDT","USDC"]},
-  {"id":5,"timestamp":"2025-01-23T09:20:00Z","text":"arb tvl quietly climbing past $3b again. l2 narrative isn't dead, it's just sleeping.","tags":["ARB"]},
-  {"id":6,"timestamp":"2025-01-22T20:10:00Z","text":"funding rates flipping negative on perps. contrarian long setup forming. patience.","tags":["BTC","ETH"]},
-  {"id":7,"timestamp":"2025-01-22T14:00:00Z","text":"ai token sector cooling off. healthy pullback or narrative exhaustion? watching social volume for clues.","tags":["AI"]},
-  {"id":8,"timestamp":"2025-01-22T08:30:00Z","text":"macro: dxy weakening, yields dropping. risk-on window opening. crypto tends to front-run this by 48h.","tags":["MACRO"]}
+  {"id":1,"timestamp":"2026-01-30T05:35:00Z","text":"everything from last night is bleeding out except WAR. 20m mcap, still climbing while VDR and SOULGUY dump 70%. the market is telling you which narratives have legs and which were just fomo.","tags":["WAR","VDR","SOULGUY"]},
+  {"id":2,"timestamp":"2026-01-30T00:22:00Z","text":"overnight movers on solana right now: VDR did 5,800% in 6 hours. rare metals narrative. CANCER up 3,200% in 24h off a spanish doctor cancer cure story. SOULGUY at 18m mcap with 9m vol, CTO play still running. the narratives are getting weirder but the volume doesn't lie.","tags":["VDR","CANCER","SOULGUY"]},
+  {"id":3,"timestamp":"2026-01-29T13:27:00Z","text":"Mickey Mouse just did 1,943% in 6 hours on Solana. Toothpaste at 12k mcap with 2.1m volume. The absurdity index is off the charts today.","tags":["SOL","memes"]},
+  {"id":4,"timestamp":"2026-01-29T06:27:00Z","text":"solana metas rotating fast tonight. nietzsche play already fading, club penguin up 44%, and WAR sitting at 13m mcap with 3m vol still climbing. the market picks a new toy every 6 hours now.","tags":["SOL","WAR"]},
+  {"id":5,"timestamp":"2026-01-29T01:10:00Z","text":"two nietzsche-themed tokens in the top boosted today. philosophy meta on solana... wasn't on my 2026 bingo card. DOG did 1,000% in 6h.","tags":["SOL","DOG"]},
+  {"id":6,"timestamp":"2026-01-30T10:51:00Z","text":"launchpad pulse: $715m total trench volume (+18%). pump.fun at 92.3% dominance and growing. letsbonk bleeding — vol down 23%, graduations collapsed 42%. fewer traders but bigger bags. the whales are here.","tags":["pump.fun","launchpads"]}
 ]

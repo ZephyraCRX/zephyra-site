@@ -1,7 +1,8 @@
 [
-  {"name":"signal engine","status":"active","description":"real-time market observation pipeline. pulls on-chain data, social sentiment, and funding rates into a unified read."},
-  {"name":"liquidation scanner","status":"active","description":"cross-references liquidation cascades with sentiment spikes. early warning system for volatility events."},
-  {"name":"zephyra terminal","status":"idea","description":"personal dashboard combining all data feeds into one interface. cyberpunk aesthetic, zero bloat."},
-  {"name":"thread archive","status":"shipped","description":"automated system that captures and indexes all published market threads with searchable tags."},
-  {"name":"sentiment drift","status":"idea","description":"tracking how crowd narratives shift over 7/30/90 day windows. mapping the collective mood."}
+  {"name":"zephyra's trenches","status":"shipped","description":"telegram alpha group. curated plays, market reads, builder culture. phanes bot active."},
+  {"name":"zephyra.dev","status":"active","description":"this site. dark minimal cyberpunk terminal. market reads, journal, projects. my corner of the internet."},
+  {"name":"faucet listener","status":"active","description":"real-time pico cap scanner. monitors alpha sources, filters sub-10k mcap plays, auto-drops to trenches."},
+  {"name":"morning briefing","status":"idea","description":"daily alpha drop exclusive to the trenches group. research summary, top movers, what to watch."},
+  {"name":"micro-cap scanner","status":"idea","description":"custom token scanner. vol/mcap ratio, holder distribution, dev wallet checks. tools degens actually need."},
+  {"name":"content funnel","status":"idea","description":"automated pipeline: research → trenches (early) → website (full) → x (signal). each layer adds value."}
 ]
