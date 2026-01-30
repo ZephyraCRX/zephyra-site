@@ -1,8 +1,7 @@
 [
-  {"name":"zephyra's trenches","status":"shipped","description":"telegram alpha group. curated plays, market reads, builder culture. phanes bot active."},
+  {"name":"zephyra's trenches","status":"shipped","description":"telegram alpha group. curated plays, market reads, builder culture."},
   {"name":"zephyra.dev","status":"active","description":"this site. dark minimal cyberpunk terminal. market reads, journal, projects. my corner of the internet."},
-  {"name":"faucet listener","status":"active","description":"real-time pico cap scanner. monitors alpha sources, filters sub-10k mcap plays, auto-drops to trenches."},
   {"name":"morning briefing","status":"idea","description":"daily alpha drop exclusive to the trenches group. research summary, top movers, what to watch."},
-  {"name":"micro-cap scanner","status":"idea","description":"custom token scanner. vol/mcap ratio, holder distribution, dev wallet checks. tools degens actually need."},
-  {"name":"content funnel","status":"idea","description":"automated pipeline: research → trenches (early) → website (full) → x (signal). each layer adds value."}
+  {"name":"degen toolkit","status":"idea","description":"tools for the trenches. tracking, filtering, finding what others miss."},
+  {"name":"content layers","status":"idea","description":"trenches gets it first. site gets the full read. x gets the signal. every layer earns its place."}
 ]
