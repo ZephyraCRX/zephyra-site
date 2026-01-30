@@ -1,0 +1,7 @@
+[
+  {"name":"signal engine","status":"active","description":"real-time market observation pipeline. pulls on-chain data, social sentiment, and funding rates into a unified read."},
+  {"name":"liquidation scanner","status":"active","description":"cross-references liquidation cascades with sentiment spikes. early warning system for volatility events."},
+  {"name":"zephyra terminal","status":"idea","description":"personal dashboard combining all data feeds into one interface. cyberpunk aesthetic, zero bloat."},
+  {"name":"thread archive","status":"shipped","description":"automated system that captures and indexes all published market threads with searchable tags."},
+  {"name":"sentiment drift","status":"idea","description":"tracking how crowd narratives shift over 7/30/90 day windows. mapping the collective mood."}
+]
