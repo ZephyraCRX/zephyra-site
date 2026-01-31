@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📊 Volume Ratio Tracker — zephyra.tools</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0f;
+    color: #e0e0e0;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 30px;
+    border-bottom: 1px solid #1a1a2e;
+    padding-bottom: 20px;
+  }
+  .header h1 {
+    font-size: 1.4em;
+    color: #00d4ff;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    margin-bottom: 5px;
+  }
+  .header p {
+    color: #666;
+    font-size: 0.8em;
+  }
+  .stats-bar {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    background: #111118;
+    border: 1px solid #1a1a2e;
+    border-radius: 8px;
+    padding: 10px 18px;
+    text-align: center;
+  }
+  .stat-label { color: #666; font-size: 0.7em; text-transform: uppercase; }
+  .stat-value { color: #00d4ff; font-size: 1.2em; font-weight: bold; }
+  .controls {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .controls button {
+    background: #1a1a2e;
+    color: #00d4ff;
+    border: 1px solid #2a2a4e;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.8em;
+    transition: all 0.2s;
+  }
+  .controls button:hover { background: #2a2a4e; }
+  .controls button.active { background: #00d4ff; color: #0a0a0f; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85em;
+  }
+  thead th {
+    background: #111118;
+    color: #888;
+    padding: 12px 10px;
+    text-align: right;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.75em;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid #1a1a2e;
+    position: sticky;
+    top: 0;
+    cursor: pointer;
+  }
+  thead th:first-child, thead th:nth-child(2) { text-align: left; }
+  thead th:hover { color: #00d4ff; }
+  tbody tr {
+    border-bottom: 1px solid #111118;
+    transition: background 0.15s;
+  }
+  tbody tr:hover { background: #111118; }
+  td {
+    padding: 10px;
+    text-align: right;
+    white-space: nowrap;
+  }
+  td:first-child { text-align: center; color: #444; }
+  td:nth-child(2) { text-align: left; }
+  .token-name { color: #fff; font-weight: 600; }
+  .token-symbol { color: #888; font-size: 0.85em; margin-left: 4px; }
+  .token-link { text-decoration: none; color: inherit; }
+  .token-link:hover .token-name { color: #00d4ff; }
+  .ratio {
+    color: #00ff88;
+    font-weight: bold;
+    font-size: 1.1em;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+  }
+  .ratio-extreme {
+    color: #ff6600;
+    text-shadow: 0 0 15px rgba(255, 102, 0, 0.4);
+  }
+  .positive { color: #00ff88; }
+  .negative { color: #ff4444; }
+  .neutral { color: #666; }
+  .mcap, .volume { color: #ccc; }
+  .loading {
+    text-align: center;
+    padding: 60px;
+    color: #444;
+    font-size: 1.2em;
+  }
+  .loading .spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #222;
+    border-top-color: #00d4ff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .error { color: #ff4444; text-align: center; padding: 40px; }
+  .last-update {
+    text-align: center;
+    color: #333;
+    font-size: 0.7em;
+    margin-top: 20px;
+  }
+  .footer {
+    text-align: center;
+    color: #222;
+    font-size: 0.7em;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #111;
+  }
+  .footer a { color: #333; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📊 VOLUME RATIO TRACKER</h1>
+  <p>solana tokens where 24h volume / mcap &gt; 10x — dexscreener data</p>
+</div>
+
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-label">Tokens Found</div>
+    <div class="stat-value" id="tokenCount">—</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Highest Ratio</div>
+    <div class="stat-value" id="highestRatio">—</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Avg Ratio</div>
+    <div class="stat-value" id="avgRatio">—</div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Last Scan</div>
+    <div class="stat-value" id="lastScan">—</div>
+  </div>
+</div>
+
+<div class="controls">
+  <button onclick="setMinRatio(5)" id="btn5">5x+</button>
+  <button onclick="setMinRatio(10)" id="btn10" class="active">10x+</button>
+  <button onclick="setMinRatio(25)" id="btn25">25x+</button>
+  <button onclick="setMinRatio(50)" id="btn50">50x+</button>
+  <button onclick="setMinRatio(100)" id="btn100">100x+</button>
+  <button onclick="fetchData()" style="margin-left: 20px;">🔄 Refresh</button>
+</div>
+
+<div id="content">
+  <div class="loading"><span class="spinner"></span> scanning boosted tokens...</div>
+</div>
+
+<div class="last-update" id="lastUpdate"></div>
+
+<div class="footer">
+  built by <a href="https://x.com/zephyraalpha" target="_blank">@zephyraalpha</a> · data from dexscreener
+</div>
+
+<script>
+let allTokens = [];
+let minRatio = 10;
+let sortKey = 'ratio';
+let sortDir = -1;
+
+function fmt(n) {
+  if (n === undefined || n === null) return '—';
+  if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+  if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K';
+  return '$' + n.toFixed(0);
+}
+
+function fmtPct(n) {
+  if (n === undefined || n === null) return '—';
+  const cls = n > 0 ? 'positive' : n < 0 ? 'negative' : 'neutral';
+  return `<span class="${cls}">${n > 0 ? '+' : ''}${n.toFixed(1)}%</span>`;
+}
+
+function fmtRatio(r) {
+  const cls = r >= 50 ? 'ratio-extreme' : 'ratio';
+  return `<span class="${cls}">${r.toFixed(1)}x</span>`;
+}
+
+function setMinRatio(val) {
+  minRatio = val;
+  document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn' + val)?.classList.add('active');
+  renderTable();
+}
+
+function setSort(key) {
+  if (sortKey === key) sortDir *= -1;
+  else { sortKey = key; sortDir = -1; }
+  renderTable();
+}
+
+function renderTable() {
+  const filtered = allTokens.filter(t => t.ratio >= minRatio);
+  filtered.sort((a, b) => {
+    const av = a[sortKey] ?? 0, bv = b[sortKey] ?? 0;
+    return (av - bv) * sortDir;
+  });
+
+  document.getElementById('tokenCount').textContent = filtered.length;
+  if (filtered.length > 0) {
+    document.getElementById('highestRatio').textContent = filtered[0].ratio.toFixed(1) + 'x';
+    const avg = filtered.reduce((s, t) => s + t.ratio, 0) / filtered.length;
+    document.getElementById('avgRatio').textContent = avg.toFixed(1) + 'x';
+  }
+
+  if (filtered.length === 0) {
+    document.getElementById('content').innerHTML = '<div class="loading">no tokens found above ' + minRatio + 'x ratio</div>';
+    return;
+  }
+
+  let html = `<table>
+    <thead><tr>
+      <th>#</th>
+      <th onclick="setSort('name')">Token</th>
+      <th onclick="setSort('mcap')">MCap</th>
+      <th onclick="setSort('volume')">Vol 24h</th>
+      <th onclick="setSort('ratio')">Ratio</th>
+      <th onclick="setSort('h1')">1h</th>
+      <th onclick="setSort('h6')">6h</th>
+      <th onclick="setSort('h24')">24h</th>
+    </tr></thead><tbody>`;
+
+  filtered.forEach((t, i) => {
+    html += `<tr>
+      <td>${i + 1}</td>
+      <td><a class="token-link" href="https://dexscreener.com/solana/${t.address}" target="_blank">
+        <span class="token-name">${t.name}</span><span class="token-symbol">${t.symbol}</span>
+      </a></td>
+      <td class="mcap">${fmt(t.mcap)}</td>
+      <td class="volume">${fmt(t.volume)}</td>
+      <td>${fmtRatio(t.ratio)}</td>
+      <td>${fmtPct(t.h1)}</td>
+      <td>${fmtPct(t.h6)}</td>
+      <td>${fmtPct(t.h24)}</td>
+    </tr>`;
+  });
+
+  html += '</tbody></table>';
+  document.getElementById('content').innerHTML = html;
+}
+
+async function fetchData() {
+  document.getElementById('content').innerHTML = '<div class="loading"><span class="spinner"></span> scanning boosted tokens...</div>';
+
+  try {
+    // Step 1: Get boosted tokens
+    const boostRes = await fetch('https://api.dexscreener.com/token-boosts/top/v1');
+    const boosts = await boostRes.json();
+
+    // Filter Solana tokens only
+    const solanaTokens = boosts.filter(t => t.chainId === 'solana');
+    const addresses = [...new Set(solanaTokens.map(t => t.tokenAddress))];
+
+    // Step 2: Fetch token details in batches of 30
+    allTokens = [];
+    for (let i = 0; i < addresses.length; i += 30) {
+      const batch = addresses.slice(i, i + 30);
+      const url = 'https://api.dexscreener.com/latest/dex/tokens/' + batch.join(',');
+      const res = await fetch(url);
+      const data = await res.json();
+
+      if (data.pairs) {
+        // Group by base token, take highest liquidity pair
+        const seen = {};
+        data.pairs.forEach(p => {
+          if (p.chainId !== 'solana') return;
+          const addr = p.baseToken.address;
+          if (!seen[addr] || (p.liquidity?.usd || 0) > (seen[addr].liquidity?.usd || 0)) {
+            seen[addr] = p;
+          }
+        });
+
+        Object.values(seen).forEach(p => {
+          const mcap = p.marketCap || p.fdv || 0;
+          const vol = p.volume?.h24 || 0;
+          if (mcap <= 0) return;
+          const ratio = vol / mcap;
+
+          allTokens.push({
+            name: p.baseToken.name || '?',
+            symbol: p.baseToken.symbol || '?',
+            address: p.baseToken.address,
+            mcap: mcap,
+            volume: vol,
+            ratio: ratio,
+            h1: p.priceChange?.h1 ?? null,
+            h6: p.priceChange?.h6 ?? null,
+            h24: p.priceChange?.h24 ?? null,
+          });
+        });
+      }
+    }
+
+    document.getElementById('lastScan').textContent = new Date().toLocaleTimeString();
+    document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleString();
+    renderTable();
+
+  } catch (err) {
+    document.getElementById('content').innerHTML = '<div class="error">Error: ' + err.message + '</div>';
+  }
+}
+
+// Auto-refresh every 60 seconds
+fetchData();
+setInterval(fetchData, 60000);
+</script>
+</body>
+</html>
