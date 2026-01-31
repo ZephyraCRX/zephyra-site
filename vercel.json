@@ -1,0 +1,15 @@
+{
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "framework": null,
+  "routes": [
+    {
+      "src": "/tracker",
+      "dest": "/tracker/index.html"
+    },
+    {
+      "src": "/tracker/(.*)",
+      "dest": "/tracker/$1"
+    }
+  ]
+}
