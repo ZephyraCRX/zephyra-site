@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📊 Volume Ratio Tracker — zephyra.tools</title>
+<title>📊 zephyra.tools — tracker</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -13,196 +13,328 @@
     padding: 20px;
     min-height: 100vh;
   }
-  .header {
-    text-align: center;
-    margin-bottom: 30px;
-    border-bottom: 1px solid #1a1a2e;
-    padding-bottom: 20px;
+  .header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; }
+  .header h1 { font-size: 1.4em; color: #00d4ff; text-shadow: 0 0 20px rgba(0,212,255,0.3); margin-bottom: 5px; }
+  .header p { color: #666; font-size: 0.8em; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 0; justify-content: center; margin-bottom: 25px; border-bottom: 2px solid #1a1a2e; }
+  .tab {
+    padding: 12px 24px; color: #666; font-family: inherit; font-size: 0.85em;
+    background: none; border: none; border-bottom: 2px solid transparent;
+    margin-bottom: -2px; cursor: pointer; transition: all 0.2s;
   }
-  .header h1 {
-    font-size: 1.4em;
-    color: #00d4ff;
-    text-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
-    margin-bottom: 5px;
-  }
-  .header p {
-    color: #666;
-    font-size: 0.8em;
-  }
-  .stats-bar {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-  .stat {
-    background: #111118;
-    border: 1px solid #1a1a2e;
-    border-radius: 8px;
-    padding: 10px 18px;
-    text-align: center;
-  }
+  .tab:hover { color: #aaa; }
+  .tab.active { color: #00d4ff; border-bottom-color: #00d4ff; text-shadow: 0 0 10px rgba(0,212,255,0.3); }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Shared */
+  .stats-bar { display: flex; gap: 20px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
+  .stat { background: #111118; border: 1px solid #1a1a2e; border-radius: 8px; padding: 10px 18px; text-align: center; }
   .stat-label { color: #666; font-size: 0.7em; text-transform: uppercase; }
   .stat-value { color: #00d4ff; font-size: 1.2em; font-weight: bold; }
-  .controls {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
+  .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; flex-wrap: wrap; }
   .controls button {
-    background: #1a1a2e;
-    color: #00d4ff;
-    border: 1px solid #2a2a4e;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: 0.8em;
-    transition: all 0.2s;
+    background: #1a1a2e; color: #00d4ff; border: 1px solid #2a2a4e;
+    padding: 8px 16px; border-radius: 6px; cursor: pointer; font-family: inherit;
+    font-size: 0.8em; transition: all 0.2s;
   }
   .controls button:hover { background: #2a2a4e; }
   .controls button.active { background: #00d4ff; color: #0a0a0f; }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.85em;
-  }
+
+  /* Volume table */
+  table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
   thead th {
-    background: #111118;
-    color: #888;
-    padding: 12px 10px;
-    text-align: right;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.75em;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid #1a1a2e;
-    position: sticky;
-    top: 0;
-    cursor: pointer;
+    background: #111118; color: #888; padding: 12px 10px; text-align: right;
+    font-weight: 600; text-transform: uppercase; font-size: 0.75em;
+    letter-spacing: 0.5px; border-bottom: 2px solid #1a1a2e; position: sticky;
+    top: 0; cursor: pointer; white-space: nowrap;
   }
   thead th:first-child, thead th:nth-child(2) { text-align: left; }
   thead th:hover { color: #00d4ff; }
-  tbody tr {
-    border-bottom: 1px solid #111118;
-    transition: background 0.15s;
-  }
+  tbody tr { border-bottom: 1px solid #111118; transition: background 0.15s; }
   tbody tr:hover { background: #111118; }
-  td {
-    padding: 10px;
-    text-align: right;
-    white-space: nowrap;
-  }
+  td { padding: 10px; text-align: right; white-space: nowrap; }
   td:first-child { text-align: center; color: #444; }
   td:nth-child(2) { text-align: left; }
   .token-name { color: #fff; font-weight: 600; }
   .token-symbol { color: #888; font-size: 0.85em; margin-left: 4px; }
   .token-link { text-decoration: none; color: inherit; }
   .token-link:hover .token-name { color: #00d4ff; }
-  .ratio {
-    color: #00ff88;
-    font-weight: bold;
-    font-size: 1.1em;
-    text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-  }
-  .ratio-extreme {
-    color: #ff6600;
-    text-shadow: 0 0 15px rgba(255, 102, 0, 0.4);
-  }
+  .ratio { color: #00ff88; font-weight: bold; font-size: 1.1em; text-shadow: 0 0 10px rgba(0,255,136,0.3); }
+  .ratio-extreme { color: #ff6600; text-shadow: 0 0 15px rgba(255,102,0,0.4); }
   .positive { color: #00ff88; }
   .negative { color: #ff4444; }
   .neutral { color: #666; }
   .mcap, .volume { color: #ccc; }
-  .loading {
-    text-align: center;
-    padding: 60px;
-    color: #444;
-    font-size: 1.2em;
-  }
+  .loading { text-align: center; padding: 60px; color: #444; font-size: 1.2em; }
   .loading .spinner {
-    display: inline-block;
-    width: 20px;
-    height: 20px;
-    border: 2px solid #222;
-    border-top-color: #00d4ff;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-right: 10px;
-    vertical-align: middle;
+    display: inline-block; width: 20px; height: 20px; border: 2px solid #222;
+    border-top-color: #00d4ff; border-radius: 50%; animation: spin 0.8s linear infinite;
+    margin-right: 10px; vertical-align: middle;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   .error { color: #ff4444; text-align: center; padding: 40px; }
-  .last-update {
-    text-align: center;
-    color: #333;
-    font-size: 0.7em;
-    margin-top: 20px;
+
+  /* ========== ENHANCED NARRATIVE STYLES ========== */
+  
+  /* Stage filters */
+  .stage-filters { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
+  .stage-btn {
+    background: #111118; border: 1px solid #1a1a2e; color: #888;
+    padding: 6px 14px; border-radius: 20px; cursor: pointer; font-family: inherit;
+    font-size: 0.75em; transition: all 0.2s;
   }
+  .stage-btn:hover { border-color: #2a2a4e; color: #aaa; }
+  .stage-btn.active { border-color: #00d4ff; color: #00d4ff; background: rgba(0,212,255,0.1); }
+  .stage-btn.stage-emerging.active { border-color: #888; color: #888; background: rgba(136,136,136,0.1); }
+  .stage-btn.stage-warming.active { border-color: #ffaa00; color: #ffaa00; background: rgba(255,170,0,0.1); }
+  .stage-btn.stage-hot.active { border-color: #ff4444; color: #ff4444; background: rgba(255,68,68,0.1); }
+  .stage-btn.stage-cooling.active { border-color: #6688ff; color: #6688ff; background: rgba(102,136,255,0.1); }
+
+  /* Narrative grid - enhanced */
+  .narrative-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 900px) { .narrative-grid { grid-template-columns: 1fr 1fr; } }
+
+  .narrative-card {
+    background: #111118; border: 1px solid #1a1a2e; border-radius: 10px;
+    padding: 20px; transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .narrative-card:hover { border-color: #2a2a4e; transform: translateY(-2px); }
+  
+  /* Stage-based card styling */
+  .narrative-card.stage-hot { border-left: 3px solid #ff4444; }
+  .narrative-card.stage-warming { border-left: 3px solid #ffaa00; }
+  .narrative-card.stage-emerging { border-left: 3px solid #888; }
+  .narrative-card.stage-cooling { border-left: 3px solid #6688ff; }
+
+  .narrative-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 10px; }
+  .narrative-name { font-size: 1.1em; font-weight: 600; color: #fff; }
+  .narrative-badges { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  
+  /* Enhanced badges */
+  .badge {
+    font-size: 0.65em; padding: 3px 8px; border-radius: 4px;
+    font-weight: 600; text-transform: uppercase; white-space: nowrap;
+  }
+  .badge-hot {
+    background: linear-gradient(135deg, #ff4444, #ff6666); color: #fff;
+    animation: pulse-hot 1.5s ease-in-out infinite;
+    box-shadow: 0 0 10px rgba(255,68,68,0.4);
+  }
+  .badge-warming {
+    background: linear-gradient(135deg, #ffaa00, #ffcc44); color: #111;
+  }
+  .badge-emerging {
+    background: #2a2a3e; color: #888; border: 1px solid #3a3a4e;
+  }
+  .badge-cooling {
+    background: linear-gradient(135deg, #4466cc, #6688ff); color: #fff;
+  }
+  @keyframes pulse-hot { 0%,100% { opacity: 1; } 50% { opacity: 0.8; } }
+  
+  /* Special play badges */
+  .badge-cultural {
+    background: linear-gradient(135deg, #9966ff, #cc88ff); color: #fff;
+  }
+  .badge-derivative {
+    background: linear-gradient(135deg, #00cc88, #44ffaa); color: #111;
+  }
+  .badge-saturated {
+    background: #ff6600; color: #fff;
+  }
+
+  /* Trend arrow styles */
+  .trend-arrow { font-size: 1.2em; font-weight: bold; }
+  .trend-up { color: #00ff88; }
+  .trend-strong-up { color: #00ff88; text-shadow: 0 0 8px rgba(0,255,136,0.5); }
+  .trend-neutral { color: #888; }
+  .trend-down { color: #ff4444; }
+  .trend-strong-down { color: #ff4444; text-shadow: 0 0 8px rgba(255,68,68,0.5); }
+
+  /* Score meter */
+  .score-meter {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  }
+  .score-bar-container {
+    flex: 1; height: 6px; background: #1a1a2e; border-radius: 3px; overflow: hidden;
+  }
+  .score-bar {
+    height: 100%; border-radius: 3px; transition: width 0.5s ease;
+  }
+  .score-bar.score-low { background: linear-gradient(90deg, #444, #666); }
+  .score-bar.score-medium { background: linear-gradient(90deg, #ffaa00, #ffcc44); }
+  .score-bar.score-high { background: linear-gradient(90deg, #ff4444, #ff6666); }
+  .score-value {
+    font-size: 0.9em; font-weight: bold; min-width: 45px; text-align: right;
+  }
+  .score-value.score-low { color: #666; }
+  .score-value.score-medium { color: #ffaa00; }
+  .score-value.score-high { color: #ff4444; }
+
+  /* Narrative stats row */
+  .narrative-stats { display: flex; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+  .narrative-stat { font-size: 0.75em; }
+  .narrative-stat-label { color: #555; }
+  .narrative-stat-value { color: #00d4ff; font-weight: 600; }
+
+  /* Saturation indicator */
+  .saturation-indicator {
+    display: inline-flex; align-items: center; gap: 4px; font-size: 0.7em;
+    padding: 2px 8px; border-radius: 3px; margin-left: 6px;
+  }
+  .saturation-low { color: #00ff88; background: rgba(0,255,136,0.1); }
+  .saturation-medium { color: #ffaa00; background: rgba(255,170,0,0.1); }
+  .saturation-high { color: #ff4444; background: rgba(255,68,68,0.1); }
+
+  /* Token list within cards - enhanced */
+  .narrative-tokens { margin-top: 8px; }
+  .narrative-token-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0; border-top: 1px solid #1a1a2e; font-size: 0.8em;
+    transition: background 0.2s;
+  }
+  .narrative-token-row:first-child { border-top: none; }
+  .narrative-token-row:hover { background: rgba(0,212,255,0.03); }
+  
+  .narrative-token-left { display: flex; align-items: center; gap: 8px; }
+  .narrative-token-name { color: #ccc; }
+  .narrative-token-name a { color: #ccc; text-decoration: none; }
+  .narrative-token-name a:hover { color: #00d4ff; }
+  
+  .token-mini-badge {
+    font-size: 0.65em; padding: 1px 5px; border-radius: 3px;
+  }
+  .token-mini-badge.cultural { background: rgba(153,102,255,0.2); color: #cc88ff; }
+  .token-mini-badge.derivative { background: rgba(0,204,136,0.2); color: #44ffaa; }
+  
+  .narrative-token-stats { display: flex; gap: 12px; color: #888; font-size: 0.9em; align-items: center; }
+  .token-score {
+    font-weight: bold; padding: 2px 6px; border-radius: 3px; font-size: 0.85em;
+  }
+  .token-score.score-low { color: #666; background: rgba(102,102,102,0.1); }
+  .token-score.score-medium { color: #ffaa00; background: rgba(255,170,0,0.1); }
+  .token-score.score-high { color: #ff4444; background: rgba(255,68,68,0.1); }
+
+  .narrative-expand {
+    background: none; border: none; color: #555; font-family: inherit;
+    font-size: 0.75em; cursor: pointer; padding: 6px 0; margin-top: 8px;
+    transition: color 0.2s;
+  }
+  .narrative-expand:hover { color: #00d4ff; }
+  .narrative-hidden { display: none; }
+
+  /* Legend */
+  .legend {
+    display: flex; gap: 20px; justify-content: center; margin-bottom: 20px;
+    flex-wrap: wrap; padding: 12px; background: #111118; border-radius: 8px;
+    border: 1px solid #1a1a2e; font-size: 0.7em;
+  }
+  .legend-item { display: flex; align-items: center; gap: 6px; color: #888; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .legend-dot.emerging { background: #888; }
+  .legend-dot.warming { background: #ffaa00; }
+  .legend-dot.hot { background: #ff4444; }
+  .legend-dot.cooling { background: #6688ff; }
+
+  /* Footer */
+  .last-update { text-align: center; color: #333; font-size: 0.7em; margin-top: 20px; }
   .footer {
-    text-align: center;
-    color: #222;
-    font-size: 0.7em;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #111;
+    text-align: center; color: #222; font-size: 0.7em; margin-top: 30px;
+    padding-top: 20px; border-top: 1px solid #111;
   }
   .footer a { color: #333; }
+
+  @media (max-width: 600px) {
+    body { padding: 12px; }
+    table { font-size: 0.75em; }
+    td, thead th { padding: 8px 6px; }
+    .tab { padding: 10px 14px; font-size: 0.8em; }
+    .narrative-card { padding: 15px; }
+    .narrative-name { font-size: 1em; }
+  }
 </style>
 </head>
 <body>
 
+<div style="margin-bottom:15px;">
+  <a href="/" style="color:#666;text-decoration:none;font-size:0.8em;font-family:monospace;">← zephyra.home</a>
+</div>
 <div class="header">
-  <h1>📊 VOLUME RATIO TRACKER</h1>
-  <p>solana tokens where 24h volume / mcap &gt; 10x — dexscreener data</p>
+  <h1>📊 ZEPHYRA TRACKER</h1>
 </div>
 
-<div class="stats-bar">
-  <div class="stat">
-    <div class="stat-label">Tokens Found</div>
-    <div class="stat-value" id="tokenCount">—</div>
-  </div>
-  <div class="stat">
-    <div class="stat-label">Highest Ratio</div>
-    <div class="stat-value" id="highestRatio">—</div>
-  </div>
-  <div class="stat">
-    <div class="stat-label">Avg Ratio</div>
-    <div class="stat-value" id="avgRatio">—</div>
-  </div>
-  <div class="stat">
-    <div class="stat-label">Last Scan</div>
-    <div class="stat-value" id="lastScan">—</div>
-  </div>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('volume')">📊 Volume Ratio</button>
+  <button class="tab" onclick="switchTab('narratives')">🧠 Narratives</button>
 </div>
 
-<div class="controls">
-  <button onclick="setMinRatio(5)" id="btn5">5x+</button>
-  <button onclick="setMinRatio(10)" id="btn10" class="active">10x+</button>
-  <button onclick="setMinRatio(25)" id="btn25">25x+</button>
-  <button onclick="setMinRatio(50)" id="btn50">50x+</button>
-  <button onclick="setMinRatio(100)" id="btn100">100x+</button>
-  <button onclick="fetchData()" style="margin-left: 20px;">🔄 Refresh</button>
+<!-- TAB 1: Volume Ratio -->
+<div id="tab-volume" class="tab-content active">
+  <p style="color:#666;font-size:0.8em;text-align:center;margin-bottom:20px;">solana tokens where 24h volume / mcap &gt; 10x — dexscreener data</p>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-label">Tokens Found</div><div class="stat-value" id="tokenCount">—</div></div>
+    <div class="stat"><div class="stat-label">Highest Ratio</div><div class="stat-value" id="highestRatio">—</div></div>
+    <div class="stat"><div class="stat-label">Avg Ratio</div><div class="stat-value" id="avgRatio">—</div></div>
+    <div class="stat"><div class="stat-label">Last Scan</div><div class="stat-value" id="lastScan">—</div></div>
+  </div>
+  <div class="controls">
+    <button onclick="setMinRatio(5)" id="btn5">5x+</button>
+    <button onclick="setMinRatio(10)" id="btn10" class="active">10x+</button>
+    <button onclick="setMinRatio(25)" id="btn25">25x+</button>
+    <button onclick="setMinRatio(50)" id="btn50">50x+</button>
+    <button onclick="setMinRatio(100)" id="btn100">100x+</button>
+    <button onclick="fetchVolumeData()" style="margin-left:20px;">🔄 Refresh</button>
+  </div>
+  <div id="volume-content"><div class="loading"><span class="spinner"></span> scanning boosted tokens...</div></div>
+  <div class="last-update" id="volumeLastUpdate"></div>
 </div>
 
-<div id="content">
-  <div class="loading"><span class="spinner"></span> scanning boosted tokens...</div>
-</div>
+<!-- TAB 2: Enhanced Narratives -->
+<div id="tab-narratives" class="tab-content">
+  <p style="color:#666;font-size:0.8em;text-align:center;margin-bottom:20px;">trending solana tokens grouped by narrative — lifecycle analysis & pattern detection</p>
+  
+  <div class="legend">
+    <div class="legend-item"><span class="legend-dot emerging"></span> Emerging</div>
+    <div class="legend-item"><span class="legend-dot warming"></span> Warming</div>
+    <div class="legend-item"><span class="legend-dot hot"></span> Hot</div>
+    <div class="legend-item"><span class="legend-dot cooling"></span> Cooling</div>
+    <div class="legend-item">🌍 Cultural Play</div>
+    <div class="legend-item">🔗 Derivative</div>
+  </div>
 
-<div class="last-update" id="lastUpdate"></div>
+  <div class="stats-bar">
+    <div class="stat"><div class="stat-label">Narratives</div><div class="stat-value" id="narrativeCount">—</div></div>
+    <div class="stat"><div class="stat-label">Tokens Analyzed</div><div class="stat-value" id="narrativeTokens">—</div></div>
+    <div class="stat"><div class="stat-label">🔥 Hottest</div><div class="stat-value" id="hottestNarrative" style="font-size:0.9em;">—</div></div>
+    <div class="stat"><div class="stat-label">Avg Score</div><div class="stat-value" id="avgNarrativeScore">—</div></div>
+  </div>
+
+  <div class="stage-filters">
+    <button class="stage-btn active" onclick="filterStage('all')">All Stages</button>
+    <button class="stage-btn stage-hot" onclick="filterStage('hot')">🔥 Hot</button>
+    <button class="stage-btn stage-warming" onclick="filterStage('warming')">↗ Warming</button>
+    <button class="stage-btn stage-emerging" onclick="filterStage('emerging')">→ Emerging</button>
+    <button class="stage-btn stage-cooling" onclick="filterStage('cooling')">↘ Cooling</button>
+  </div>
+
+  <div class="controls">
+    <button onclick="toggleCulturalOnly()">🌍 Cultural Plays Only</button>
+    <button onclick="toggleDerivativesOnly()">🔗 Derivatives Only</button>
+    <button onclick="fetchNarrativeData()">🔄 Refresh</button>
+  </div>
+
+  <div id="narrative-content"><div class="loading"><span class="spinner"></span> analyzing narratives...</div></div>
+  <div class="last-update" id="narrativeLastUpdate"></div>
+</div>
 
 <div class="footer">
-  built by <a href="https://x.com/zephyraalpha" target="_blank">@zephyraalpha</a> · data from dexscreener
+  built by <a href="https://x.com/zephyraalpha" target="_blank">@zephyraalpha</a> · data from dexscreener · narrative analysis powered by zephyra research
 </div>
 
 <script>
-let allTokens = [];
-let minRatio = 10;
-let sortKey = 'ratio';
-let sortDir = -1;
-
+// ============ SHARED ============
 function fmt(n) {
   if (n === undefined || n === null) return '—';
   if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
@@ -210,145 +342,583 @@ function fmt(n) {
   if (n >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K';
   return '$' + n.toFixed(0);
 }
-
 function fmtPct(n) {
-  if (n === undefined || n === null) return '—';
+  if (n === undefined || n === null) return '<span class="neutral">—</span>';
   const cls = n > 0 ? 'positive' : n < 0 ? 'negative' : 'neutral';
   return `<span class="${cls}">${n > 0 ? '+' : ''}${n.toFixed(1)}%</span>`;
 }
-
 function fmtRatio(r) {
   const cls = r >= 50 ? 'ratio-extreme' : 'ratio';
   return `<span class="${cls}">${r.toFixed(1)}x</span>`;
 }
 
+// ============ NARRATIVE ANALYSIS ENGINE ============
+// Keywords for special pattern detection (mirroring research.py)
+const CULTURAL_KEYWORDS = {
+  chinese_zodiac: ['dragon', 'rabbit', 'ox', 'tiger', 'rat', 'snake', 'horse', 'goat', 'monkey', 'rooster', 'dog', 'pig', '龙', '兔', '虎', '蛇', 'lunar', 'zodiac', 'year of'],
+  ramadan: ['ramadan', 'eid', 'islamic', 'fasting', 'iftar', 'halal', 'mubarak', 'kareem'],
+  seasonal: ['summer', 'winter', 'spring', 'autumn', 'holiday', 'festival', 'christmas', 'halloween', 'valentine', 'easter', 'thanksgiving', 'new year'],
+  regional: ['chinese', 'indian', 'diwali', 'holi', 'lunar new year', 'mid-autumn']
+};
+
+const DERIVATIVE_KEYWORDS = ['baby', 'mini', 'micro', 'alt', 'spin', 'variant', 'son of', 'daughter of', 'junior', '2.0', 'v2', 'pro', 'ultra', 'mega', 'super', 'new', 'next'];
+
+/**
+ * Calculate narrative score for a token (0-100)
+ * Mirrors research.py scoring logic
+ */
+function calculateNarrativeScore(token) {
+  let score = 50; // Base neutral score
+  
+  // Price momentum contribution
+  const change1h = Math.abs(parseFloat(token.h1) || 0);
+  const change24h = Math.abs(parseFloat(token.h24) || 0);
+  const change6h = Math.abs(parseFloat(token.h6) || 0);
+  
+  score += Math.min(change1h, 20); // 1h contributes up to 20
+  score += Math.min(change24h, 30); // 24h contributes up to 30
+  
+  // Volume significance
+  const volume = parseFloat(token.volume) || 0;
+  if (volume > 1000000) score += 10;
+  else if (volume > 100000) score += 5;
+  
+  // MCap tier bonus
+  const mcap = parseFloat(token.mcap) || 0;
+  if (mcap > 10000000) score += 5; // 10M+ gets bonus
+  
+  // Liquidity health
+  const liq = parseFloat(token.liquidity) || 0;
+  if (liq > 100000) score += 5;
+  
+  // Check for cultural/seasonal plays
+  const text = (token.name + ' ' + token.symbol + ' ' + (token.description || '')).toLowerCase();
+  let isCultural = false;
+  for (const [type, keywords] of Object.entries(CULTURAL_KEYWORDS)) {
+    for (const kw of keywords) {
+      if (text.includes(kw)) {
+        isCultural = true;
+        score += 15;
+        break;
+      }
+    }
+    if (isCultural) break;
+  }
+  
+  // Check for derivative patterns
+  let isDerivative = false;
+  for (const kw of DERIVATIVE_KEYWORDS) {
+    if (text.includes(kw)) {
+      isDerivative = true;
+      score += 10;
+      break;
+    }
+  }
+  
+  // Normalize to 0-100
+  score = Math.max(0, Math.min(100, score));
+  
+  // Determine lifecycle stage
+  let stage, trend;
+  if (score <= 40) {
+    stage = 'emerging';
+    trend = '→';
+  } else if (score <= 60) {
+    stage = 'warming';
+    trend = '↗';
+  } else if (score <= 80) {
+    stage = 'hot';
+    trend = '↑';
+  } else {
+    stage = 'cooling'; // Very high scores often precede dumps
+    trend = '↘';
+  }
+  
+  // Override based on momentum direction
+  const avgChange = ((token.h1 || 0) + (token.h6 || 0) / 2) / 2;
+  if (avgChange < -10) {
+    stage = 'cooling';
+    trend = '↘';
+  } else if (avgChange > 20 && stage !== 'cooling') {
+    stage = 'hot';
+    trend = '↑';
+  }
+  
+  // Saturation check
+  let saturation;
+  if (score < 50) saturation = 'Low';
+  else if (score < 75) saturation = 'Medium';
+  else saturation = 'High';
+  
+  return {
+    score: Math.round(score),
+    stage,
+    trend,
+    saturation,
+    isCultural,
+    isDerivative,
+    culturalType: isCultural ? detectCulturalType(text) : null
+  };
+}
+
+function detectCulturalType(text) {
+  for (const [type, keywords] of Object.entries(CULTURAL_KEYWORDS)) {
+    for (const kw of keywords) {
+      if (text.includes(kw)) return type;
+    }
+  }
+  return 'other';
+}
+
+function getTrendArrow(analysis) {
+  const arrows = {
+    '↑': { html: '↑', class: 'trend-strong-up' },
+    '↗': { html: '↗', class: 'trend-up' },
+    '→': { html: '→', class: 'trend-neutral' },
+    '↘': { html: '↘', class: 'trend-down' },
+    '↓': { html: '↓', class: 'trend-strong-down' }
+  };
+  return arrows[analysis.trend] || arrows['→'];
+}
+
+function getStageBadge(stage) {
+  const badges = {
+    'hot': '<span class="badge badge-hot">🔥 HOT</span>',
+    'warming': '<span class="badge badge-warming">↗ WARMING</span>',
+    'emerging': '<span class="badge badge-emerging">→ EMERGING</span>',
+    'cooling': '<span class="badge badge-cooling">↘ COOLING</span>'
+  };
+  return badges[stage] || '';
+}
+
+// Shared token cache
+let cachedTokens = null;
+let cachedAt = 0;
+
+async function fetchAllTokens() {
+  if (cachedTokens && Date.now() - cachedAt < 30000) return cachedTokens;
+
+  const [boostRes, profileRes] = await Promise.all([
+    fetch('https://api.dexscreener.com/token-boosts/top/v1'),
+    fetch('https://api.dexscreener.com/token-profiles/latest/v1'),
+  ]);
+  const boosts = await boostRes.json();
+  const profiles = await profileRes.json();
+  const solanaBoosts = boosts.filter(t => t.chainId === 'solana');
+  const solanaProfiles = profiles.filter(t => t.chainId === 'solana');
+  const addresses = [...new Set([
+    ...solanaBoosts.map(t => t.tokenAddress),
+    ...solanaProfiles.map(t => t.tokenAddress),
+  ])];
+
+  let tokens = [];
+  for (let i = 0; i < addresses.length; i += 30) {
+    const batch = addresses.slice(i, i + 30);
+    const res = await fetch('https://api.dexscreener.com/latest/dex/tokens/' + batch.join(','));
+    const data = await res.json();
+    if (data.pairs) {
+      const seen = {};
+      data.pairs.forEach(p => {
+        if (p.chainId !== 'solana') return;
+        const addr = p.baseToken.address;
+        if (!seen[addr] || (p.liquidity?.usd || 0) > (seen[addr].liquidity?.usd || 0)) seen[addr] = p;
+      });
+      Object.values(seen).forEach(p => {
+        const mcap = p.marketCap || p.fdv || 0;
+        const vol = p.volume?.h24 || 0;
+        if (mcap <= 0) return;
+        tokens.push({
+          name: p.baseToken.name || '?',
+          symbol: p.baseToken.symbol || '?',
+          address: p.baseToken.address,
+          mcap, volume: vol,
+          ratio: vol / mcap,
+          h1: p.priceChange?.h1 ?? null,
+          h6: p.priceChange?.h6 ?? null,
+          h24: p.priceChange?.h24 ?? null,
+          description: p.info?.description || '',
+          liquidity: p.liquidity?.usd || 0,
+        });
+      });
+    }
+  }
+  cachedTokens = tokens;
+  cachedAt = Date.now();
+  return tokens;
+}
+
+// ============ TABS ============
+let narrativeLoaded = false;
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'narratives' && !narrativeLoaded) {
+    narrativeLoaded = true;
+    fetchNarrativeData();
+  }
+}
+
+// ============ TAB 1: VOLUME RATIO ============
+let allTokens = [];
+let minRatio = 10;
+let sortKey = 'ratio';
+let sortDir = -1;
+
 function setMinRatio(val) {
   minRatio = val;
-  document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#tab-volume .controls button').forEach(b => b.classList.remove('active'));
   document.getElementById('btn' + val)?.classList.add('active');
-  renderTable();
+  renderVolumeTable();
 }
-
-function setSort(key) {
+function setVolumeSort(key) {
   if (sortKey === key) sortDir *= -1;
   else { sortKey = key; sortDir = -1; }
-  renderTable();
+  renderVolumeTable();
 }
-
-function renderTable() {
+function renderVolumeTable() {
   const filtered = allTokens.filter(t => t.ratio >= minRatio);
-  filtered.sort((a, b) => {
-    const av = a[sortKey] ?? 0, bv = b[sortKey] ?? 0;
-    return (av - bv) * sortDir;
-  });
-
+  filtered.sort((a, b) => ((a[sortKey] ?? 0) - (b[sortKey] ?? 0)) * sortDir);
   document.getElementById('tokenCount').textContent = filtered.length;
   if (filtered.length > 0) {
     document.getElementById('highestRatio').textContent = filtered[0].ratio.toFixed(1) + 'x';
-    const avg = filtered.reduce((s, t) => s + t.ratio, 0) / filtered.length;
-    document.getElementById('avgRatio').textContent = avg.toFixed(1) + 'x';
+    document.getElementById('avgRatio').textContent = (filtered.reduce((s,t) => s+t.ratio, 0) / filtered.length).toFixed(1) + 'x';
+  }
+  if (filtered.length === 0) {
+    document.getElementById('volume-content').innerHTML = '<div class="loading">no tokens found above ' + minRatio + 'x ratio</div>';
+    return;
+  }
+  let html = `<table><thead><tr>
+    <th>#</th><th onclick="setVolumeSort('name')">Token</th>
+    <th onclick="setVolumeSort('mcap')">MCap</th><th onclick="setVolumeSort('volume')">Vol 24h</th>
+    <th onclick="setVolumeSort('ratio')">Ratio</th><th onclick="setVolumeSort('h1')">1h</th>
+    <th onclick="setVolumeSort('h6')">6h</th><th onclick="setVolumeSort('h24')">24h</th>
+  </tr></thead><tbody>`;
+  filtered.forEach((t, i) => {
+    html += `<tr><td>${i+1}</td>
+      <td><a class="token-link" href="https://dexscreener.com/solana/${t.address}" target="_blank">
+        <span class="token-name">${t.name}</span><span class="token-symbol">${t.symbol}</span></a></td>
+      <td class="mcap">${fmt(t.mcap)}</td><td class="volume">${fmt(t.volume)}</td>
+      <td>${fmtRatio(t.ratio)}</td><td>${fmtPct(t.h1)}</td><td>${fmtPct(t.h6)}</td><td>${fmtPct(t.h24)}</td></tr>`;
+  });
+  html += '</tbody></table>';
+  document.getElementById('volume-content').innerHTML = html;
+}
+
+async function fetchVolumeData() {
+  document.getElementById('volume-content').innerHTML = '<div class="loading"><span class="spinner"></span> scanning boosted tokens...</div>';
+  try {
+    allTokens = await fetchAllTokens();
+    document.getElementById('lastScan').textContent = new Date().toLocaleTimeString();
+    document.getElementById('volumeLastUpdate').textContent = 'Last updated: ' + new Date().toLocaleString();
+    renderVolumeTable();
+  } catch (err) {
+    document.getElementById('volume-content').innerHTML = '<div class="error">Error: ' + err.message + '</div>';
+  }
+}
+
+// ============ TAB 2: ENHANCED NARRATIVES ============
+const NARRATIVES = {
+  '🤖 AI & Agents': {
+    keywords: ['ai', 'agent', 'gpt', 'llm', 'bot', 'neural', 'openai', 'claude', 'sentient', 'cortex', 'brain', 'machine', 'algo', 'autonomous', 'inference', 'model', 'transformer', 'cognit', 'deepseek', 'anthropic', 'gemini', 'copilot'],
+    exact: ['ai', 'gpt', 'llm', 'agi'],
+  },
+  '⚡ Controversy': {
+    keywords: ['epstein', 'lolita', 'diddy', 'goyim', 'jew', 'nazi', 'hitler', 'conspiracy', 'cia', 'fbi', 'illuminati', 'pizzagate', 'scandal', 'trafficking', 'cartel', 'crime'],
+    exact: [],
+  },
+  '🏛️ Politics': {
+    keywords: ['trump', 'biden', 'barron', 'maga', 'president', 'elon', 'musk', 'government', 'election', 'patriot', 'freedom', 'america', 'melania', 'vivek', 'congress', 'desantis', 'rfk', 'war', 'military'],
+    exact: ['usa', 'gop'],
+  },
+  '🐸 Animals': {
+    keywords: ['dog', 'cat', 'frog', 'pepe', 'shib', 'doge', 'crab', 'lobster', 'penguin', 'monkey', 'ape', 'bear', 'bull', 'fish', 'bird', 'whale', 'dragon', 'panda', 'fox', 'wolf', 'tiger', 'lion', 'hamster', 'goat', 'hippo', 'turtle', 'snake'],
+    exact: [],
+  },
+  '🎬 Pop Culture': {
+    keywords: ['disney', 'mickey', 'spongebob', 'grok', 'simpson', 'anime', 'mario', 'pokemon', 'netflix', 'movie', 'rapper', 'kanye', 'drake', 'taylor', 'celebrity', 'viral', 'tiktok', 'influencer', 'streamer', 'youtuber'],
+    exact: [],
+  },
+  '💎 RWA': {
+    keywords: ['gold', 'silver', 'metal', 'mineral', 'commodity', 'oil', 'diamond', 'copper', 'uranium', 'lithium', 'asset', 'treasury', 'real world', 'rwa', 'tokeniz'],
+    exact: ['vdr'],
+  },
+  '🎮 Gaming': {
+    keywords: ['game', 'play', 'quest', 'rpg', 'battle', 'arena', 'fight', 'warrior', 'pixel', 'arcade', 'guild', 'loot', 'nft', 'metaverse', 'virtual', 'dungeon'],
+    exact: [],
+  },
+  '💰 DeFi': {
+    keywords: ['swap', 'yield', 'stake', 'lend', 'vault', 'dao', 'dex', 'liquidity', 'protocol', 'bridge', 'farm', 'amm', 'oracle', 'layer', 'governance'],
+    exact: [],
+  },
+  '🌍 Cultural Plays': {
+    keywords: ['ramadan', 'eid', 'lunar', 'zodiac', 'dragon', 'chinese', 'diwali', 'christmas', 'halloween', 'easter', 'new year', 'festival', 'holiday'],
+    exact: [],
+  },
+  '🏴‍☠️ Degen': {
+    keywords: ['wojak', 'chad', 'npc', 'based', 'cope', 'kek', 'sigma', 'wagmi', 'ngmi', 'hodl', 'moon', 'lambo', 'degen', 'rug', 'pump', 'butt', 'poop', 'fren', 'gm'],
+    exact: [],
+  },
+};
+
+// State
+let currentStageFilter = 'all';
+let showCulturalOnly = false;
+let showDerivativesOnly = false;
+let allNarrativeData = [];
+
+function filterStage(stage) {
+  currentStageFilter = stage;
+  document.querySelectorAll('.stage-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderNarratives(allNarrativeData);
+}
+
+function toggleCulturalOnly() {
+  showCulturalOnly = !showCulturalOnly;
+  showDerivativesOnly = false;
+  event.target.classList.toggle('active', showCulturalOnly);
+  document.querySelectorAll('.controls button')[1].classList.remove('active');
+  renderNarratives(allNarrativeData);
+}
+
+function toggleDerivativesOnly() {
+  showDerivativesOnly = !showDerivativesOnly;
+  showCulturalOnly = false;
+  event.target.classList.toggle('active', showDerivativesOnly);
+  document.querySelectorAll('.controls button')[0].classList.remove('active');
+  renderNarratives(allNarrativeData);
+}
+
+function classifyToken(token) {
+  const text = (token.name + ' ' + token.symbol + ' ' + (token.description || '')).toLowerCase();
+  const symbol = token.symbol.toLowerCase();
+  const name = token.name.toLowerCase();
+  const matched = [];
+
+  for (const [narrative, config] of Object.entries(NARRATIVES)) {
+    let found = false;
+    if (config.exact) {
+      for (const ex of config.exact) {
+        if (symbol === ex || name === ex) { found = true; break; }
+      }
+    }
+    if (!found) {
+      for (const kw of config.keywords) {
+        if (text.includes(kw)) { found = true; break; }
+      }
+    }
+    if (found) matched.push(narrative);
   }
 
-  if (filtered.length === 0) {
-    document.getElementById('content').innerHTML = '<div class="loading">no tokens found above ' + minRatio + 'x ratio</div>';
+  if (matched.length > 2) matched.length = 2;
+  if (matched.length === 0) matched.push('🔥 Misc Trending');
+  return matched;
+}
+
+function renderNarratives(tokens) {
+  allNarrativeData = tokens;
+  
+  // Analyze each token
+  const analyzedTokens = tokens.map(t => ({
+    ...t,
+    analysis: calculateNarrativeScore(t)
+  }));
+
+  // Apply filters
+  let filteredTokens = analyzedTokens;
+  if (currentStageFilter !== 'all') {
+    filteredTokens = filteredTokens.filter(t => t.analysis.stage === currentStageFilter);
+  }
+  if (showCulturalOnly) {
+    filteredTokens = filteredTokens.filter(t => t.analysis.isCultural);
+  }
+  if (showDerivativesOnly) {
+    filteredTokens = filteredTokens.filter(t => t.analysis.isDerivative);
+  }
+
+  // Classify into narratives
+  const buckets = {};
+  for (const name of Object.keys(NARRATIVES)) buckets[name] = [];
+  buckets['🔥 Misc Trending'] = [];
+
+  filteredTokens.forEach(t => {
+    const narratives = classifyToken(t);
+    narratives.forEach(n => {
+      if (!buckets[n]) buckets[n] = [];
+      buckets[n].push(t);
+    });
+  });
+
+  // Calculate narrative-level stats
+  const narrativeStats = Object.entries(buckets)
+    .map(([name, tokens]) => {
+      if (tokens.length === 0) return null;
+      
+      const totalVol = tokens.reduce((s, t) => s + t.volume, 0);
+      const avgScore = tokens.reduce((s, t) => s + t.analysis.score, 0) / tokens.length;
+      const avgH1 = tokens.reduce((s, t) => s + (t.h1 ?? 0), 0) / tokens.length;
+      const avgH24 = tokens.reduce((s, t) => s + (t.h24 ?? 0), 0) / tokens.length;
+      
+      // Determine overall narrative stage
+      const stages = tokens.map(t => t.analysis.stage);
+      const stageCounts = { hot: 0, warming: 0, emerging: 0, cooling: 0 };
+      stages.forEach(s => stageCounts[s]++);
+      const dominantStage = Object.entries(stageCounts).sort((a, b) => b[1] - a[1])[0][0];
+      
+      // Cultural/derivative count
+      const culturalCount = tokens.filter(t => t.analysis.isCultural).length;
+      const derivativeCount = tokens.filter(t => t.analysis.isDerivative).length;
+      
+      // Saturation
+      const saturation = avgScore < 50 ? 'Low' : avgScore < 75 ? 'Medium' : 'High';
+
+      const sorted = [...tokens].sort((a, b) => b.analysis.score - a.analysis.score);
+
+      return {
+        name, tokens: sorted, totalVol, avgScore, avgH1, avgH24,
+        stage: dominantStage, culturalCount, derivativeCount, saturation,
+        count: tokens.length
+      };
+    })
+    .filter(n => n !== null && n.count > 0)
+    .sort((a, b) => b.avgScore - a.avgScore);
+
+  // Update stats
+  document.getElementById('narrativeCount').textContent = narrativeStats.length;
+  document.getElementById('narrativeTokens').textContent = filteredTokens.length;
+  if (narrativeStats.length > 0) {
+    document.getElementById('hottestNarrative').textContent = narrativeStats[0].name.substring(0, 15);
+    const overallAvg = narrativeStats.reduce((s, n) => s + n.avgScore, 0) / narrativeStats.length;
+    document.getElementById('avgNarrativeScore').textContent = Math.round(overallAvg) + '/100';
+  }
+  document.getElementById('narrativeLastUpdate').textContent = 'Last updated: ' + new Date().toLocaleString();
+
+  if (narrativeStats.length === 0) {
+    document.getElementById('narrative-content').innerHTML = '<div class="loading">no narratives match current filters</div>';
     return;
   }
 
-  let html = `<table>
-    <thead><tr>
-      <th>#</th>
-      <th onclick="setSort('name')">Token</th>
-      <th onclick="setSort('mcap')">MCap</th>
-      <th onclick="setSort('volume')">Vol 24h</th>
-      <th onclick="setSort('ratio')">Ratio</th>
-      <th onclick="setSort('h1')">1h</th>
-      <th onclick="setSort('h6')">6h</th>
-      <th onclick="setSort('h24')">24h</th>
-    </tr></thead><tbody>`;
+  // Render cards
+  let html = '<div class="narrative-grid">';
+  narrativeStats.forEach((n, ni) => {
+    const top4 = n.tokens.slice(0, 4);
+    const rest = n.tokens.slice(4);
+    const trendArrow = getTrendArrow({ trend: n.avgH1 > 5 ? '↑' : n.avgH1 > 0 ? '↗' : n.avgH1 > -5 ? '→' : '↘' });
+    const scoreClass = n.avgScore < 50 ? 'score-low' : n.avgScore < 75 ? 'score-medium' : 'score-high';
 
-  filtered.forEach((t, i) => {
-    html += `<tr>
-      <td>${i + 1}</td>
-      <td><a class="token-link" href="https://dexscreener.com/solana/${t.address}" target="_blank">
-        <span class="token-name">${t.name}</span><span class="token-symbol">${t.symbol}</span>
-      </a></td>
-      <td class="mcap">${fmt(t.mcap)}</td>
-      <td class="volume">${fmt(t.volume)}</td>
-      <td>${fmtRatio(t.ratio)}</td>
-      <td>${fmtPct(t.h1)}</td>
-      <td>${fmtPct(t.h6)}</td>
-      <td>${fmtPct(t.h24)}</td>
-    </tr>`;
-  });
+    html += `<div class="narrative-card stage-${n.stage}">
+      <div class="narrative-card-header">
+        <span class="narrative-name">${n.name}</span>
+        <div class="narrative-badges">
+          ${getStageBadge(n.stage)}
+          <span class="trend-arrow ${trendArrow.class}">${trendArrow.html}</span>
+        </div>
+      </div>
+      
+      <div class="score-meter">
+        <div class="score-bar-container">
+          <div class="score-bar ${scoreClass}" style="width: ${n.avgScore}%"></div>
+        </div>
+        <span class="score-value ${scoreClass}">${Math.round(n.avgScore)}/100</span>
+      </div>
+      
+      <div class="narrative-stats">
+        <span class="narrative-stat"><span class="narrative-stat-label">vol: </span><span class="narrative-stat-value">${fmt(n.totalVol)}</span></span>
+        <span class="narrative-stat"><span class="narrative-stat-label">tokens: </span><span class="narrative-stat-value">${n.count}</span></span>
+        <span class="narrative-stat"><span class="narrative-stat-label">24h: </span>${fmtPct(n.avgH24)}</span>
+        ${n.culturalCount > 0 ? `<span class="narrative-stat"><span class="narrative-stat-label">🌍: </span><span class="narrative-stat-value">${n.culturalCount}</span></span>` : ''}
+        ${n.derivativeCount > 0 ? `<span class="narrative-stat"><span class="narrative-stat-label">🔗: </span><span class="narrative-stat-value">${n.derivativeCount}</span></span>` : ''}
+        <span class="saturation-indicator saturation-${n.saturation.toLowerCase()}">${n.saturation === 'High' ? '⚠️' : ''} ${n.saturation} Saturation</span>
+      </div>
+      
+      <div class="narrative-tokens">`;
 
-  html += '</tbody></table>';
-  document.getElementById('content').innerHTML = html;
-}
+    top4.forEach(t => {
+      const tokenScoreClass = t.analysis.score < 50 ? 'score-low' : t.analysis.score < 75 ? 'score-medium' : 'score-high';
+      const tArrow = getTrendArrow(t.analysis);
+      
+      html += `<div class="narrative-token-row">
+        <div class="narrative-token-left">
+          <span class="narrative-token-name">
+            <a href="https://dexscreener.com/solana/${t.address}" target="_blank">
+              ${t.name} <span style="color:#555;">${t.symbol}</span>
+            </a>
+          </span>
+          ${t.analysis.isCultural ? '<span class="token-mini-badge cultural">🌍</span>' : ''}
+          ${t.analysis.isDerivative ? '<span class="token-mini-badge derivative">🔗</span>' : ''}
+        </div>
+        <span class="narrative-token-stats">
+          <span class="token-score ${tokenScoreClass}">${t.analysis.score}</span>
+          <span class="trend-arrow ${tArrow.class}" style="font-size:0.9em;">${tArrow.html}</span>
+          <span>${fmt(t.mcap)}</span>
+          ${fmtPct(t.h24)}
+        </span>
+      </div>`;
+    });
 
-async function fetchData() {
-  document.getElementById('content').innerHTML = '<div class="loading"><span class="spinner"></span> scanning boosted tokens...</div>';
-
-  try {
-    // Step 1: Get boosted tokens
-    const boostRes = await fetch('https://api.dexscreener.com/token-boosts/top/v1');
-    const boosts = await boostRes.json();
-
-    // Filter Solana tokens only
-    const solanaTokens = boosts.filter(t => t.chainId === 'solana');
-    const addresses = [...new Set(solanaTokens.map(t => t.tokenAddress))];
-
-    // Step 2: Fetch token details in batches of 30
-    allTokens = [];
-    for (let i = 0; i < addresses.length; i += 30) {
-      const batch = addresses.slice(i, i + 30);
-      const url = 'https://api.dexscreener.com/latest/dex/tokens/' + batch.join(',');
-      const res = await fetch(url);
-      const data = await res.json();
-
-      if (data.pairs) {
-        // Group by base token, take highest liquidity pair
-        const seen = {};
-        data.pairs.forEach(p => {
-          if (p.chainId !== 'solana') return;
-          const addr = p.baseToken.address;
-          if (!seen[addr] || (p.liquidity?.usd || 0) > (seen[addr].liquidity?.usd || 0)) {
-            seen[addr] = p;
-          }
-        });
-
-        Object.values(seen).forEach(p => {
-          const mcap = p.marketCap || p.fdv || 0;
-          const vol = p.volume?.h24 || 0;
-          if (mcap <= 0) return;
-          const ratio = vol / mcap;
-
-          allTokens.push({
-            name: p.baseToken.name || '?',
-            symbol: p.baseToken.symbol || '?',
-            address: p.baseToken.address,
-            mcap: mcap,
-            volume: vol,
-            ratio: ratio,
-            h1: p.priceChange?.h1 ?? null,
-            h6: p.priceChange?.h6 ?? null,
-            h24: p.priceChange?.h24 ?? null,
-          });
-        });
-      }
+    if (rest.length > 0) {
+      html += `<div class="narrative-hidden" id="narrative-rest-${ni}">`;
+      rest.forEach(t => {
+        const tokenScoreClass = t.analysis.score < 50 ? 'score-low' : t.analysis.score < 75 ? 'score-medium' : 'score-high';
+        const tArrow = getTrendArrow(t.analysis);
+        
+        html += `<div class="narrative-token-row">
+          <div class="narrative-token-left">
+            <span class="narrative-token-name">
+              <a href="https://dexscreener.com/solana/${t.address}" target="_blank">
+                ${t.name} <span style="color:#555;">${t.symbol}</span>
+              </a>
+            </span>
+            ${t.analysis.isCultural ? '<span class="token-mini-badge cultural">🌍</span>' : ''}
+            ${t.analysis.isDerivative ? '<span class="token-mini-badge derivative">🔗</span>' : ''}
+          </div>
+          <span class="narrative-token-stats">
+            <span class="token-score ${tokenScoreClass}">${t.analysis.score}</span>
+            <span class="trend-arrow ${tArrow.class}" style="font-size:0.9em;">${tArrow.html}</span>
+            <span>${fmt(t.mcap)}</span>
+            ${fmtPct(t.h24)}
+          </span>
+        </div>`;
+      });
+      html += `</div>`;
+      html += `<button class="narrative-expand" onclick="toggleNarrativeExpand(${ni}, ${rest.length})">▶ show ${rest.length} more</button>`;
     }
 
-    document.getElementById('lastScan').textContent = new Date().toLocaleTimeString();
-    document.getElementById('lastUpdate').textContent = 'Last updated: ' + new Date().toLocaleString();
-    renderTable();
+    html += `</div></div>`;
+  });
+  html += '</div>';
 
-  } catch (err) {
-    document.getElementById('content').innerHTML = '<div class="error">Error: ' + err.message + '</div>';
+  document.getElementById('narrative-content').innerHTML = html;
+}
+
+function toggleNarrativeExpand(idx, count) {
+  const el = document.getElementById('narrative-rest-' + idx);
+  const btn = el.nextElementSibling;
+  if (el.classList.contains('narrative-hidden')) {
+    el.classList.remove('narrative-hidden');
+    btn.textContent = '▼ hide ' + count + ' tokens';
+  } else {
+    el.classList.add('narrative-hidden');
+    btn.textContent = '▶ show ' + count + ' more';
   }
 }
 
-// Auto-refresh every 60 seconds
-fetchData();
-setInterval(fetchData, 60000);
+async function fetchNarrativeData() {
+  document.getElementById('narrative-content').innerHTML = '<div class="loading"><span class="spinner"></span> analyzing narratives...</div>';
+  try {
+    const tokens = await fetchAllTokens();
+    renderNarratives(tokens);
+  } catch (err) {
+    document.getElementById('narrative-content').innerHTML = '<div class="error">Error: ' + err.message + '</div>';
+  }
+}
+
+// ============ INIT ============
+fetchVolumeData();
+setInterval(fetchVolumeData, 120000);
+setInterval(() => { if (narrativeLoaded) fetchNarrativeData(); }, 120000);
 </script>
 </body>
 </html>
