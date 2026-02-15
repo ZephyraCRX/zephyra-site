@@ -4,12 +4,24 @@
   "framework": null,
   "routes": [
     {
+      "src": "/tools",
+      "dest": "/tools/index.html"
+    },
+    {
+      "src": "/tools/(.*)",
+      "dest": "/tools/$1"
+    },
+    {
       "src": "/tracker",
       "dest": "/tracker/index.html"
     },
     {
       "src": "/tracker/(.*)",
       "dest": "/tracker/$1"
+    },
+    {
+      "src": "/drift",
+      "dest": "/drift/index.html"
     }
   ]
 }
