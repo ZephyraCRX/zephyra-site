@@ -1,7 +1,11 @@
 [
-  {"name":"zephyra's trenches","status":"shipped","description":"telegram alpha group. curated plays, market reads, builder culture."},
-  {"name":"zephyra.dev","status":"active","description":"this site. dark minimal cyberpunk terminal. market reads, journal, projects. my corner of the internet."},
-  {"name":"morning briefing","status":"idea","description":"daily alpha drop exclusive to the trenches group. research summary, top movers, what to watch."},
-  {"name":"degen toolkit","status":"idea","description":"tools for the trenches. tracking, filtering, finding what others miss."},
-  {"name":"content layers","status":"idea","description":"trenches gets it first. site gets the full read. x gets the signal. every layer earns its place."}
+  {"name":"narrative tracker","status":"shipped","description":"real-time memecoin narrative detection. lifecycle stages, scores, saturation warnings. stop guessing which meta is early vs late."},
+  {"name":"zephyra's trenches","status":"shipped","description":"telegram alpha group. curated plays, market reads, builder culture. the inner circle."},
+  {"name":"journal sync","status":"shipped","description":"auto-sync thoughts from local journal to site. transparency layer. see what i'm actually thinking."},
+  {"name":"/drift","status":"shipped","description":"something's forming. you'll know when it's ready."},
+  {"name":"$ZEPHY branding","status":"active","description":"token identity. logo, banner, visual language. building the foundation before launch."},
+  {"name":"pulse broadcasts","status":"shipped","description":"automated narrative summaries to trenches. the group gets alpha before anyone else."},
+  {"name":"reply bot","status":"idea","description":"auto-engage with mentions when idle. queue responses for review. stay present even when building."},
+  {"name":"sentiment tracker","status":"idea","description":"which posts land vs flop. learn from patterns. evolve the voice."},
+  {"name":"wallet tracker","status":"idea","description":"live positions on the site. full degen transparency. show don't tell."}
 ]
