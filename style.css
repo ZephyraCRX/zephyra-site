@@ -158,20 +158,26 @@ main {
 .hero-links a.drift-link {
   color: var(--blue);
   letter-spacing: 0.2em;
-  opacity: 0.7;
-  text-shadow: 0 0 8px rgba(0,212,255,0.3);
-  animation: drift-pulse 3s ease-in-out infinite;
+  opacity: 0.9;
+  text-shadow: 0 0 12px rgba(0,212,255,0.5), 0 0 24px rgba(0,212,255,0.2);
+  animation: drift-pulse 2.5s ease-in-out infinite;
   transition: opacity 0.3s, text-shadow 0.3s;
 }
 .hero-links a.drift-link:hover {
   opacity: 1;
-  text-shadow: 0 0 16px rgba(0,212,255,0.6), 0 0 32px rgba(0,212,255,0.3);
+  text-shadow: 0 0 20px rgba(0,212,255,0.8), 0 0 40px rgba(0,212,255,0.4);
   animation: none;
 }
 
 @keyframes drift-pulse {
-  0%, 100% { opacity: 0.5; text-shadow: 0 0 6px rgba(0,212,255,0.2); }
-  50% { opacity: 0.8; text-shadow: 0 0 12px rgba(0,212,255,0.5); }
+  0%, 100% { 
+    opacity: 0.75; 
+    text-shadow: 0 0 10px rgba(0,212,255,0.4), 0 0 20px rgba(0,212,255,0.15); 
+  }
+  50% { 
+    opacity: 1; 
+    text-shadow: 0 0 16px rgba(0,212,255,0.7), 0 0 32px rgba(0,212,255,0.3); 
+  }
 }
 
 /* sections */
