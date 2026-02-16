@@ -94,6 +94,37 @@ canvas#cursor-trail {
   padding: 40px;
 }
 
+/* pulsing glow behind text */
+.text-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 100px;
+  background: radial-gradient(ellipse at center, rgba(100, 80, 160, 0.12) 0%, rgba(60, 80, 140, 0.06) 40%, transparent 70%);
+  filter: blur(30px);
+  opacity: 0;
+  animation: glowPulse 6s ease-in-out 2.5s infinite, glowFadeIn 3s ease-out 1s forwards;
+  pointer-events: none;
+}
+
+@keyframes glowFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes glowPulse {
+  0%, 100% { 
+    opacity: 0.6; 
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% { 
+    opacity: 1; 
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+}
+
 .whisper {
   font-size: clamp(0.85rem, 2vw, 1.1rem);
   font-weight: 300;
@@ -101,8 +132,9 @@ canvas#cursor-trail {
   letter-spacing: 0.1em;
   text-transform: lowercase;
   opacity: 0;
-  animation: emerge 5s ease-out 2s forwards;
+  animation: emerge 2.5s ease-out 0.5s forwards;
   text-shadow: 0 0 30px rgba(100, 120, 160, 0.1);
+  position: relative;
 }
 
 @keyframes emerge {
@@ -121,14 +153,36 @@ canvas#cursor-trail {
   width: 30px;
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(90, 110, 150, 0.25), transparent);
-  animation: breathe 8s ease-in-out infinite;
   opacity: 0;
-  animation: breathe 8s ease-in-out 5s infinite;
+  animation: breathe 8s ease-in-out 3s infinite;
 }
 
 @keyframes breathe {
   0%, 100% { opacity: 0.2; width: 30px; }
   50% { opacity: 0.45; width: 70px; }
+}
+
+/* idle state - the void becomes aware */
+body.idle .text-glow {
+  animation: glowPulse 4s ease-in-out infinite, idleGlow 8s ease-in-out infinite;
+}
+
+body.idle .whisper {
+  animation: idleText 12s ease-in-out infinite;
+}
+
+@keyframes idleGlow {
+  0%, 100% { 
+    background: radial-gradient(ellipse at center, rgba(100, 80, 160, 0.15) 0%, rgba(60, 80, 140, 0.08) 40%, transparent 70%);
+  }
+  50% { 
+    background: radial-gradient(ellipse at center, rgba(140, 100, 180, 0.2) 0%, rgba(80, 100, 160, 0.1) 40%, transparent 70%);
+  }
+}
+
+@keyframes idleText {
+  0%, 100% { color: rgba(160, 165, 185, 0.55); }
+  50% { color: rgba(180, 170, 200, 0.65); }
 }
 
 /* subtle ambient noise overlay */
@@ -158,11 +212,12 @@ canvas#cursor-trail {
 <div class="custom-cursor" id="cursor"></div>
 
 <div class="content">
+  <div class="text-glow"></div>
   <p class="whisper">some things exist before they're named.</p>
 </div>
 
 <script>
-// particles
+// particles - dust in still air
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 
@@ -175,8 +230,10 @@ const cursor = document.getElementById('cursor');
 
 let particles = [];
 let trailPoints = [];
-const particleCount = 80;
+const particleCount = 60; // fewer, more deliberate particles
 let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2, active: false };
+let lastActivity = Date.now();
+let isIdle = false;
 
 function resize() {
   canvas.width = trailCanvas.width = window.innerWidth;
@@ -187,18 +244,19 @@ function createParticle(x, y) {
   return {
     x: x ?? Math.random() * canvas.width,
     y: y ?? Math.random() * canvas.height,
-    originX: 0,
-    originY: 0,
-    size: Math.random() * 1.8 + 0.2,
-    speedX: (Math.random() - 0.5) * 0.08,
-    speedY: (Math.random() - 0.5) * 0.06 - 0.02,
-    opacity: Math.random() * 0.12 + 0.02,
+    size: Math.random() * 1.2 + 0.3, // smaller, more refined
+    // very slow, almost imperceptible drift
+    speedX: (Math.random() - 0.5) * 0.02,
+    speedY: (Math.random() - 0.5) * 0.015 - 0.008,
+    opacity: Math.random() * 0.08 + 0.02,
     baseOpacity: 0,
     pulse: Math.random() * Math.PI * 2,
-    pulseSpeed: Math.random() * 0.005 + 0.002,
+    pulseSpeed: Math.random() * 0.003 + 0.001, // slower pulse
     // color variation - subtle blue to purple range
     hue: 220 + Math.random() * 40,
-    drift: Math.random() * 0.3 + 0.1
+    // personality: how curious is this particle about the cursor?
+    curiosity: Math.random() * 0.5 + 0.2, // 0.2 to 0.7
+    wariness: Math.random() * 0.4 + 0.3 // 0.3 to 0.7
   };
 }
 
@@ -221,33 +279,51 @@ function animateParticles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
   particles.forEach(p => {
-    // cursor interaction - gentle repulsion
+    // cursor interaction - attract/repel based on personality and distance
     if (mouse.active) {
       const dist = distanceTo(p, mouse);
-      const maxDist = 150;
+      const outerRadius = 200;
+      const innerRadius = 80;
       
-      if (dist < maxDist) {
-        const force = (1 - dist / maxDist) * 0.5;
+      if (dist < outerRadius) {
         const angle = Math.atan2(p.y - mouse.y, p.x - mouse.x);
-        p.speedX += Math.cos(angle) * force * 0.03;
-        p.speedY += Math.sin(angle) * force * 0.03;
+        
+        if (dist < innerRadius) {
+          // too close - repel (wary)
+          const force = (1 - dist / innerRadius) * p.wariness * 0.4;
+          p.speedX += Math.cos(angle) * force * 0.02;
+          p.speedY += Math.sin(angle) * force * 0.02;
+        } else if (dist > innerRadius && dist < outerRadius) {
+          // curious zone - gentle attraction
+          const force = (1 - (dist - innerRadius) / (outerRadius - innerRadius)) * p.curiosity * 0.15;
+          p.speedX -= Math.cos(angle) * force * 0.008;
+          p.speedY -= Math.sin(angle) * force * 0.008;
+        }
         
         // particles near cursor glow slightly
-        p.opacity = p.baseOpacity + (1 - dist / maxDist) * 0.08;
+        p.opacity = p.baseOpacity + (1 - dist / outerRadius) * 0.06;
       } else {
-        p.opacity += (p.baseOpacity - p.opacity) * 0.02;
+        p.opacity += (p.baseOpacity - p.opacity) * 0.01;
       }
     }
     
-    // apply drift and damping
+    // idle state - particles become more active, curious
+    if (isIdle) {
+      // subtle swirling motion when idle
+      p.speedX += Math.sin(Date.now() * 0.0003 + p.pulse) * 0.003;
+      p.speedY += Math.cos(Date.now() * 0.0002 + p.pulse) * 0.002;
+      p.opacity = p.baseOpacity * 1.3; // slightly brighter when idle
+    }
+    
+    // apply drift with heavy damping (dust settles slowly)
     p.x += p.speedX;
     p.y += p.speedY;
-    p.speedX *= 0.99;
-    p.speedY *= 0.99;
+    p.speedX *= 0.995;
+    p.speedY *= 0.995;
     
-    // add gentle random drift
-    p.speedX += (Math.random() - 0.5) * 0.01 * p.drift;
-    p.speedY += (Math.random() - 0.5) * 0.008 * p.drift;
+    // very gentle random drift - like air currents
+    p.speedX += (Math.random() - 0.5) * 0.003;
+    p.speedY += (Math.random() - 0.5) * 0.002;
     
     p.pulse += p.pulseSpeed;
     
@@ -257,20 +333,20 @@ function animateParticles() {
     if (p.y < -20) p.y = canvas.height + 20;
     if (p.y > canvas.height + 20) p.y = -20;
     
-    // pulsing opacity
-    const pulsedOpacity = p.opacity * (0.6 + Math.sin(p.pulse) * 0.4);
+    // subtle pulsing opacity
+    const pulsedOpacity = p.opacity * (0.7 + Math.sin(p.pulse) * 0.3);
     
     // draw particle with subtle color
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    ctx.fillStyle = `hsla(${p.hue}, 25%, 65%, ${pulsedOpacity})`;
+    ctx.fillStyle = `hsla(${p.hue}, 20%, 60%, ${pulsedOpacity})`;
     ctx.fill();
     
-    // glow for larger particles
-    if (p.size > 1.2) {
+    // soft glow for particles
+    if (p.size > 0.8) {
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${p.hue}, 30%, 55%, ${pulsedOpacity * 0.06})`;
+      ctx.arc(p.x, p.y, p.size * 5, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue}, 25%, 50%, ${pulsedOpacity * 0.04})`;
       ctx.fill();
     }
   });
@@ -278,32 +354,50 @@ function animateParticles() {
   requestAnimationFrame(animateParticles);
 }
 
-// cursor trail
+// cursor trail - very subtle
 function animateTrail() {
   trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
   
-  if (mouse.active && trailPoints.length > 0) {
-    trailCtx.beginPath();
-    trailCtx.moveTo(trailPoints[0].x, trailPoints[0].y);
-    
+  if (mouse.active && trailPoints.length > 1) {
     for (let i = 1; i < trailPoints.length; i++) {
       const p = trailPoints[i];
+      const prev = trailPoints[i - 1];
+      const alpha = (1 - p.age / 50) * 0.03;
+      
+      trailCtx.beginPath();
+      trailCtx.moveTo(prev.x, prev.y);
       trailCtx.lineTo(p.x, p.y);
+      trailCtx.strokeStyle = `rgba(100, 130, 180, ${alpha})`;
+      trailCtx.lineWidth = 1;
+      trailCtx.lineCap = 'round';
+      trailCtx.stroke();
     }
-    
-    trailCtx.strokeStyle = 'rgba(100, 130, 180, 0.04)';
-    trailCtx.lineWidth = 1;
-    trailCtx.lineCap = 'round';
-    trailCtx.stroke();
   }
   
   // fade trail points
-  trailPoints = trailPoints.filter((p, i) => {
+  trailPoints = trailPoints.filter(p => {
     p.age++;
-    return p.age < 40;
+    return p.age < 50;
   });
   
   requestAnimationFrame(animateTrail);
+}
+
+// idle detection
+function checkIdle() {
+  const now = Date.now();
+  const wasIdle = isIdle;
+  isIdle = (now - lastActivity) > 30000; // 30 seconds
+  
+  if (isIdle !== wasIdle) {
+    document.body.classList.toggle('idle', isIdle);
+  }
+  
+  requestAnimationFrame(checkIdle);
+}
+
+function resetIdleTimer() {
+  lastActivity = Date.now();
 }
 
 // mouse handlers
@@ -311,13 +405,14 @@ function updateMouse(e) {
   mouse.x = e.clientX;
   mouse.y = e.clientY;
   mouse.active = true;
+  resetIdleTimer();
   
   cursor.style.left = mouse.x + 'px';
   cursor.style.top = mouse.y + 'px';
   cursor.style.opacity = '1';
   
   trailPoints.push({ x: mouse.x, y: mouse.y, age: 0 });
-  if (trailPoints.length > 30) trailPoints.shift();
+  if (trailPoints.length > 40) trailPoints.shift();
 }
 
 function handleTouch(e) {
@@ -325,6 +420,7 @@ function handleTouch(e) {
     mouse.x = e.touches[0].clientX;
     mouse.y = e.touches[0].clientY;
     mouse.active = true;
+    resetIdleTimer();
   }
 }
 
@@ -336,7 +432,11 @@ document.addEventListener('mouseleave', () => {
 document.addEventListener('mouseenter', () => {
   mouse.active = true;
   cursor.style.opacity = '1';
+  resetIdleTimer();
 });
+
+document.addEventListener('click', resetIdleTimer);
+document.addEventListener('keydown', resetIdleTimer);
 
 // touch support
 document.addEventListener('touchmove', handleTouch);
@@ -349,6 +449,7 @@ resize();
 initParticles();
 animateParticles();
 animateTrail();
+checkIdle();
 
 // occasional subtle flicker (very rare)
 setInterval(() => {
@@ -356,7 +457,7 @@ setInterval(() => {
     document.body.style.opacity = '0.97';
     setTimeout(() => { document.body.style.opacity = '1'; }, 50);
   }
-}, 8000);
+}, 10000);
 </script>
 </body>
 </html>
