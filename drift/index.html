@@ -9,27 +9,87 @@
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-  background: #050508;
-  color: #e0e0e0;
-  font-family: 'JetBrains Mono', monospace;
+html, body {
+  background: #030305;
   min-height: 100vh;
   overflow: hidden;
+}
+
+body {
+  color: #e0e0e0;
+  font-family: 'JetBrains Mono', monospace;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: none;
 }
 
-canvas {
+/* deep void with subtle color shifts */
+.void-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
+  background: 
+    radial-gradient(ellipse 120% 80% at 50% 120%, rgba(20, 15, 35, 0.4) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 50% at 20% 30%, rgba(15, 20, 40, 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(25, 15, 35, 0.15) 0%, transparent 50%),
+    linear-gradient(180deg, #030305 0%, #050508 50%, #040407 100%);
+}
+
+/* vignette overlay */
+.vignette {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+canvas#particles {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
   pointer-events: none;
 }
 
-.void {
+canvas#cursor-trail {
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.custom-cursor {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(140, 160, 200, 0.2);
+  pointer-events: none;
+  z-index: 100;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s ease-out, opacity 0.3s;
+  mix-blend-mode: screen;
+  box-shadow: 0 0 20px rgba(100, 130, 180, 0.15);
+}
+
+.custom-cursor::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(100, 130, 180, 0.08);
+  animation: cursor-pulse 3s ease-in-out infinite;
+}
+
+@keyframes cursor-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.5); opacity: 0.2; }
+}
+
+.content {
   position: relative;
-  z-index: 1;
+  z-index: 10;
   text-align: center;
   padding: 40px;
 }
@@ -37,135 +97,266 @@ canvas {
 .whisper {
   font-size: clamp(0.85rem, 2vw, 1.1rem);
   font-weight: 300;
-  color: rgba(180, 180, 200, 0.6);
-  letter-spacing: 0.08em;
+  color: rgba(160, 165, 185, 0.55);
+  letter-spacing: 0.1em;
   text-transform: lowercase;
   opacity: 0;
-  animation: emerge 4s ease-out 1s forwards;
+  animation: emerge 5s ease-out 2s forwards;
+  text-shadow: 0 0 30px rgba(100, 120, 160, 0.1);
 }
 
 @keyframes emerge {
-  0% { opacity: 0; transform: translateY(10px); filter: blur(4px); }
+  0% { opacity: 0; transform: translateY(12px); filter: blur(6px); }
+  60% { opacity: 0.5; transform: translateY(3px); filter: blur(1px); }
   100% { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
-/* subtle breathing effect */
+/* breathing line */
 .whisper::after {
   content: '';
   position: absolute;
   left: 50%;
-  bottom: -30px;
+  bottom: -35px;
   transform: translateX(-50%);
-  width: 40px;
+  width: 30px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(100, 140, 180, 0.3), transparent);
-  animation: breathe 6s ease-in-out infinite;
+  background: linear-gradient(90deg, transparent, rgba(90, 110, 150, 0.25), transparent);
+  animation: breathe 8s ease-in-out infinite;
+  opacity: 0;
+  animation: breathe 8s ease-in-out 5s infinite;
 }
 
 @keyframes breathe {
-  0%, 100% { opacity: 0.3; width: 40px; }
-  50% { opacity: 0.6; width: 80px; }
+  0%, 100% { opacity: 0.2; width: 30px; }
+  50% { opacity: 0.45; width: 70px; }
 }
 
-.back {
+/* subtle ambient noise overlay */
+.noise {
   position: fixed;
-  top: 24px;
-  left: 24px;
-  z-index: 10;
-  color: rgba(100, 100, 120, 0.4);
-  text-decoration: none;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  transition: color 0.4s;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
 
-.back:hover {
-  color: rgba(150, 150, 180, 0.6);
+/* hide on mobile hover states */
+@media (hover: none) {
+  .custom-cursor { display: none; }
+  body { cursor: auto; }
 }
 </style>
 </head>
 <body>
 
+<div class="void-bg"></div>
+<div class="vignette"></div>
 <canvas id="particles"></canvas>
+<canvas id="cursor-trail"></canvas>
+<div class="noise"></div>
+<div class="custom-cursor" id="cursor"></div>
 
-<a href="/" class="back">←</a>
-
-<div class="void">
+<div class="content">
   <p class="whisper">some things exist before they're named.</p>
 </div>
 
 <script>
+// particles
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 
+// cursor trail
+const trailCanvas = document.getElementById('cursor-trail');
+const trailCtx = trailCanvas.getContext('2d');
+
+// custom cursor
+const cursor = document.getElementById('cursor');
+
 let particles = [];
-const particleCount = 60;
+let trailPoints = [];
+const particleCount = 80;
+let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2, active: false };
 
 function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = trailCanvas.width = window.innerWidth;
+  canvas.height = trailCanvas.height = window.innerHeight;
 }
 
-function createParticle() {
+function createParticle(x, y) {
   return {
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    size: Math.random() * 1.5 + 0.3,
-    speedX: (Math.random() - 0.5) * 0.15,
-    speedY: (Math.random() - 0.5) * 0.1 - 0.05, // gentle upward drift
-    opacity: Math.random() * 0.15 + 0.03,
+    x: x ?? Math.random() * canvas.width,
+    y: y ?? Math.random() * canvas.height,
+    originX: 0,
+    originY: 0,
+    size: Math.random() * 1.8 + 0.2,
+    speedX: (Math.random() - 0.5) * 0.08,
+    speedY: (Math.random() - 0.5) * 0.06 - 0.02,
+    opacity: Math.random() * 0.12 + 0.02,
+    baseOpacity: 0,
     pulse: Math.random() * Math.PI * 2,
-    pulseSpeed: Math.random() * 0.008 + 0.003
+    pulseSpeed: Math.random() * 0.005 + 0.002,
+    // color variation - subtle blue to purple range
+    hue: 220 + Math.random() * 40,
+    drift: Math.random() * 0.3 + 0.1
   };
 }
 
 function initParticles() {
   particles = [];
   for (let i = 0; i < particleCount; i++) {
-    particles.push(createParticle());
+    const p = createParticle();
+    p.baseOpacity = p.opacity;
+    particles.push(p);
   }
 }
 
-function animate() {
+function distanceTo(p, target) {
+  const dx = p.x - target.x;
+  const dy = p.y - target.y;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function animateParticles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
-  particles.forEach((p, i) => {
-    // update position
+  particles.forEach(p => {
+    // cursor interaction - gentle repulsion
+    if (mouse.active) {
+      const dist = distanceTo(p, mouse);
+      const maxDist = 150;
+      
+      if (dist < maxDist) {
+        const force = (1 - dist / maxDist) * 0.5;
+        const angle = Math.atan2(p.y - mouse.y, p.x - mouse.x);
+        p.speedX += Math.cos(angle) * force * 0.03;
+        p.speedY += Math.sin(angle) * force * 0.03;
+        
+        // particles near cursor glow slightly
+        p.opacity = p.baseOpacity + (1 - dist / maxDist) * 0.08;
+      } else {
+        p.opacity += (p.baseOpacity - p.opacity) * 0.02;
+      }
+    }
+    
+    // apply drift and damping
     p.x += p.speedX;
     p.y += p.speedY;
+    p.speedX *= 0.99;
+    p.speedY *= 0.99;
+    
+    // add gentle random drift
+    p.speedX += (Math.random() - 0.5) * 0.01 * p.drift;
+    p.speedY += (Math.random() - 0.5) * 0.008 * p.drift;
+    
     p.pulse += p.pulseSpeed;
     
-    // wrap around edges
-    if (p.x < -10) p.x = canvas.width + 10;
-    if (p.x > canvas.width + 10) p.x = -10;
-    if (p.y < -10) p.y = canvas.height + 10;
-    if (p.y > canvas.height + 10) p.y = -10;
+    // wrap edges with buffer
+    if (p.x < -20) p.x = canvas.width + 20;
+    if (p.x > canvas.width + 20) p.x = -20;
+    if (p.y < -20) p.y = canvas.height + 20;
+    if (p.y > canvas.height + 20) p.y = -20;
     
     // pulsing opacity
-    const pulsedOpacity = p.opacity * (0.5 + Math.sin(p.pulse) * 0.5);
+    const pulsedOpacity = p.opacity * (0.6 + Math.sin(p.pulse) * 0.4);
     
-    // draw particle
+    // draw particle with subtle color
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(140, 160, 200, ${pulsedOpacity})`;
+    ctx.fillStyle = `hsla(${p.hue}, 25%, 65%, ${pulsedOpacity})`;
     ctx.fill();
     
-    // occasionally add faint glow
-    if (p.size > 1) {
+    // glow for larger particles
+    if (p.size > 1.2) {
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(100, 130, 180, ${pulsedOpacity * 0.1})`;
+      ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${p.hue}, 30%, 55%, ${pulsedOpacity * 0.06})`;
       ctx.fill();
     }
   });
   
-  requestAnimationFrame(animate);
+  requestAnimationFrame(animateParticles);
 }
 
+// cursor trail
+function animateTrail() {
+  trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+  
+  if (mouse.active && trailPoints.length > 0) {
+    trailCtx.beginPath();
+    trailCtx.moveTo(trailPoints[0].x, trailPoints[0].y);
+    
+    for (let i = 1; i < trailPoints.length; i++) {
+      const p = trailPoints[i];
+      trailCtx.lineTo(p.x, p.y);
+    }
+    
+    trailCtx.strokeStyle = 'rgba(100, 130, 180, 0.04)';
+    trailCtx.lineWidth = 1;
+    trailCtx.lineCap = 'round';
+    trailCtx.stroke();
+  }
+  
+  // fade trail points
+  trailPoints = trailPoints.filter((p, i) => {
+    p.age++;
+    return p.age < 40;
+  });
+  
+  requestAnimationFrame(animateTrail);
+}
+
+// mouse handlers
+function updateMouse(e) {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+  mouse.active = true;
+  
+  cursor.style.left = mouse.x + 'px';
+  cursor.style.top = mouse.y + 'px';
+  cursor.style.opacity = '1';
+  
+  trailPoints.push({ x: mouse.x, y: mouse.y, age: 0 });
+  if (trailPoints.length > 30) trailPoints.shift();
+}
+
+function handleTouch(e) {
+  if (e.touches.length > 0) {
+    mouse.x = e.touches[0].clientX;
+    mouse.y = e.touches[0].clientY;
+    mouse.active = true;
+  }
+}
+
+document.addEventListener('mousemove', updateMouse);
+document.addEventListener('mouseleave', () => {
+  mouse.active = false;
+  cursor.style.opacity = '0';
+});
+document.addEventListener('mouseenter', () => {
+  mouse.active = true;
+  cursor.style.opacity = '1';
+});
+
+// touch support
+document.addEventListener('touchmove', handleTouch);
+document.addEventListener('touchstart', handleTouch);
+document.addEventListener('touchend', () => { mouse.active = false; });
+
+// init
 window.addEventListener('resize', resize);
 resize();
 initParticles();
-animate();
+animateParticles();
+animateTrail();
+
+// occasional subtle flicker (very rare)
+setInterval(() => {
+  if (Math.random() > 0.97) {
+    document.body.style.opacity = '0.97';
+    setTimeout(() => { document.body.style.opacity = '1'; }, 50);
+  }
+}, 8000);
 </script>
 </body>
 </html>
