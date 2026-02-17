@@ -250,6 +250,17 @@ section {
   border-radius: 3px;
 }
 
+/* empty state for signals */
+.signal-empty {
+  color: var(--dim);
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 40px 20px;
+  border: 1px dashed var(--border);
+  border-radius: 4px;
+  font-style: italic;
+}
+
 /* journal */
 .journal-entry {
   margin-bottom: 28px;

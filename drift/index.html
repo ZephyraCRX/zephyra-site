@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>...</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
 <style>
@@ -195,6 +196,33 @@ body.idle .whisper {
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
 
+/* escape link */
+.escape-link {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 50;
+  color: rgba(100, 120, 160, 0.25);
+  font-size: 1.2rem;
+  text-decoration: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  transition: all 0.4s ease;
+  opacity: 0;
+  animation: fadeInEscape 3s ease-out 2s forwards;
+}
+
+.escape-link:hover {
+  color: rgba(140, 160, 200, 0.6);
+  background: rgba(100, 120, 160, 0.08);
+  text-shadow: 0 0 15px rgba(100, 130, 180, 0.3);
+}
+
+@keyframes fadeInEscape {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* hide on mobile hover states */
 @media (hover: none) {
   .custom-cursor { display: none; }
@@ -210,6 +238,8 @@ body.idle .whisper {
 <canvas id="cursor-trail"></canvas>
 <div class="noise"></div>
 <div class="custom-cursor" id="cursor"></div>
+
+<a href="/" class="escape-link" title="return">←</a>
 
 <div class="content">
   <div class="text-glow"></div>

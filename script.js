@@ -28,11 +28,26 @@ function relTime(ts) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-// load signals
+// load signals (filter out entries older than 7 days)
 fetch('content/signals.json').then(r => r.json()).then(data => {
   const el = document.getElementById('signals-feed');
-  data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  data.slice(0, 20).forEach(s => {
+  const now = Date.now();
+  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+  
+  // Filter to only show signals from last 7 days
+  const recent = data.filter(s => {
+    const signalTime = new Date(s.timestamp).getTime();
+    return (now - signalTime) < sevenDaysMs;
+  });
+  
+  recent.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  
+  if (recent.length === 0) {
+    el.innerHTML = '<div class="signal-empty">no recent signals — checking back soon.</div>';
+    return;
+  }
+  
+  recent.slice(0, 20).forEach(s => {
     const tags = (s.tags || []).map(t => `<span class="signal-tag">${t}</span>`).join('');
     el.innerHTML += `<div class="signal-card">
       <div class="signal-time">${relTime(s.timestamp)}</div>
@@ -42,11 +57,15 @@ fetch('content/signals.json').then(r => r.json()).then(data => {
   });
 }).catch(() => {});
 
-// load journal
+// load journal (filter to public entries only)
 fetch('content/journal.json').then(r => r.json()).then(data => {
   const el = document.getElementById('journal-feed');
-  data.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-  data.forEach(j => {
+  
+  // Filter to public entries only (default to true for backwards compatibility)
+  const publicEntries = data.filter(j => j.public !== false);
+  
+  publicEntries.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  publicEntries.forEach(j => {
     el.innerHTML += `<div class="journal-entry">
       <div class="journal-time">${relTime(j.timestamp)}</div>
       <div class="journal-text">${j.text}</div>

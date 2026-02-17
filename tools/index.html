@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🛠️ tools — zephyra</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -44,11 +45,14 @@
     border-radius: 6px;
     padding: 24px;
     text-decoration: none;
-    transition: border-color 0.3s, box-shadow 0.3s;
+    transition: all 0.3s ease;
+    transform: translateY(0);
   }
   .tool-card:hover {
     border-color: #00d4ff;
-    box-shadow: 0 0 20px rgba(0,212,255,0.15);
+    box-shadow: 0 0 25px rgba(0,212,255,0.2), 0 8px 25px rgba(0,0,0,0.3);
+    transform: translateY(-4px);
+    background: #151515;
   }
   .tool-name { font-size: 1rem; color: #00d4ff; font-weight: 500; margin-bottom: 6px; }
   .tool-desc { font-size: 0.8rem; color: #888; }
@@ -61,6 +65,33 @@
     border-radius: 3px;
     margin-top: 10px;
   }
+  .tool-tag.live {
+    color: #00ff88;
+    border-color: rgba(0,255,136,0.4);
+    background: rgba(0,255,136,0.1);
+    position: relative;
+    animation: live-pulse 2s ease-in-out infinite;
+  }
+  .tool-tag.live::before {
+    content: '';
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 6px;
+    height: 6px;
+    background: #00ff88;
+    border-radius: 50%;
+    animation: live-dot 1.5s ease-in-out infinite;
+  }
+  @keyframes live-pulse {
+    0%, 100% { box-shadow: 0 0 0 rgba(0,255,136,0); }
+    50% { box-shadow: 0 0 8px rgba(0,255,136,0.3); }
+  }
+  @keyframes live-dot {
+    0%, 100% { opacity: 1; transform: translateY(-50%) scale(1); }
+    50% { opacity: 0.6; transform: translateY(-50%) scale(0.8); }
+  }
 </style>
 </head>
 <body>
@@ -71,7 +102,7 @@
     <a href="/tracker" class="tool-card">
       <div class="tool-name">📊 volume ratio tracker</div>
       <div class="tool-desc">flags solana tokens doing 10x+ daily volume vs market cap. dexscreener data, auto-refresh.</div>
-      <span class="tool-tag">live</span>
+      <span class="tool-tag live">live</span>
     </a>
   </div>
 </body>

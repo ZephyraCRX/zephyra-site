@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>📊 zephyra.tools — tracker</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -38,10 +39,33 @@
   .controls button {
     background: #1a1a2e; color: #00d4ff; border: 1px solid #2a2a4e;
     padding: 8px 16px; border-radius: 6px; cursor: pointer; font-family: inherit;
-    font-size: 0.8em; transition: all 0.2s;
+    font-size: 0.8em; transition: all 0.2s; position: relative;
   }
-  .controls button:hover { background: #2a2a4e; }
-  .controls button.active { background: #00d4ff; color: #0a0a0f; }
+  .controls button:hover { background: #2a2a4e; border-color: #3a3a5e; }
+  .controls button.active { 
+    background: #00d4ff; 
+    color: #0a0a0f; 
+    font-weight: 600;
+    border-color: #00d4ff;
+    box-shadow: 0 0 12px rgba(0,212,255,0.4), inset 0 0 8px rgba(255,255,255,0.1);
+  }
+  .controls button.loading {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  .controls button.loading::after {
+    content: '';
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
 
   /* Volume table */
   table { width: 100%; border-collapse: collapse; font-size: 0.85em; }
@@ -76,22 +100,69 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   .error { color: #ff4444; text-align: center; padding: 40px; }
+  
+  /* Empty state */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #555;
+    font-size: 0.9em;
+  }
+  .empty-state .empty-icon {
+    font-size: 2.5em;
+    margin-bottom: 15px;
+    opacity: 0.5;
+  }
+  .empty-state .empty-text {
+    color: #666;
+  }
+  .empty-state .empty-hint {
+    color: #444;
+    font-size: 0.85em;
+    margin-top: 10px;
+  }
 
   /* ========== ENHANCED NARRATIVE STYLES ========== */
   
   /* Stage filters */
   .stage-filters { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap; }
   .stage-btn {
-    background: #111118; border: 1px solid #1a1a2e; color: #888;
+    background: #111118; border: 2px solid #1a1a2e; color: #888;
     padding: 6px 14px; border-radius: 20px; cursor: pointer; font-family: inherit;
     font-size: 0.75em; transition: all 0.2s;
   }
   .stage-btn:hover { border-color: #2a2a4e; color: #aaa; }
-  .stage-btn.active { border-color: #00d4ff; color: #00d4ff; background: rgba(0,212,255,0.1); }
-  .stage-btn.stage-emerging.active { border-color: #888; color: #888; background: rgba(136,136,136,0.1); }
-  .stage-btn.stage-warming.active { border-color: #ffaa00; color: #ffaa00; background: rgba(255,170,0,0.1); }
-  .stage-btn.stage-hot.active { border-color: #ff4444; color: #ff4444; background: rgba(255,68,68,0.1); }
-  .stage-btn.stage-cooling.active { border-color: #6688ff; color: #6688ff; background: rgba(102,136,255,0.1); }
+  .stage-btn.active { 
+    border-color: #00d4ff; 
+    color: #00d4ff; 
+    background: rgba(0,212,255,0.15); 
+    font-weight: 600;
+    box-shadow: 0 0 10px rgba(0,212,255,0.3);
+  }
+  .stage-btn.stage-emerging.active { 
+    border-color: #888; 
+    color: #fff; 
+    background: rgba(136,136,136,0.2); 
+    box-shadow: 0 0 8px rgba(136,136,136,0.3);
+  }
+  .stage-btn.stage-warming.active { 
+    border-color: #ffaa00; 
+    color: #ffaa00; 
+    background: rgba(255,170,0,0.15); 
+    box-shadow: 0 0 10px rgba(255,170,0,0.35);
+  }
+  .stage-btn.stage-hot.active { 
+    border-color: #ff4444; 
+    color: #ff4444; 
+    background: rgba(255,68,68,0.15); 
+    box-shadow: 0 0 12px rgba(255,68,68,0.4);
+  }
+  .stage-btn.stage-cooling.active { 
+    border-color: #6688ff; 
+    color: #6688ff; 
+    background: rgba(102,136,255,0.15); 
+    box-shadow: 0 0 10px rgba(102,136,255,0.35);
+  }
 
   /* Narrative grid - enhanced */
   .narrative-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
@@ -179,14 +250,40 @@
   .narrative-stat-label { color: #555; }
   .narrative-stat-value { color: #00d4ff; font-weight: 600; }
 
-  /* Saturation indicator */
+  /* Saturation indicator with tooltip */
   .saturation-indicator {
     display: inline-flex; align-items: center; gap: 4px; font-size: 0.7em;
     padding: 2px 8px; border-radius: 3px; margin-left: 6px;
+    position: relative; cursor: help;
   }
   .saturation-low { color: #00ff88; background: rgba(0,255,136,0.1); }
   .saturation-medium { color: #ffaa00; background: rgba(255,170,0,0.1); }
   .saturation-high { color: #ff4444; background: rgba(255,68,68,0.1); }
+  
+  .saturation-indicator::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 12px;
+    background: #1a1a2e;
+    border: 1px solid #2a2a4e;
+    border-radius: 6px;
+    font-size: 0.85em;
+    color: #ccc;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 100;
+    margin-bottom: 6px;
+    pointer-events: none;
+  }
+  .saturation-indicator:hover::after {
+    opacity: 1;
+    visibility: visible;
+  }
 
   /* Token list within cards - enhanced */
   .narrative-tokens { margin-top: 8px; }
@@ -586,7 +683,12 @@ function renderVolumeTable() {
     document.getElementById('avgRatio').textContent = (filtered.reduce((s,t) => s+t.ratio, 0) / filtered.length).toFixed(1) + 'x';
   }
   if (filtered.length === 0) {
-    document.getElementById('volume-content').innerHTML = '<div class="loading">no tokens found above ' + minRatio + 'x ratio</div>';
+    document.getElementById('volume-content').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <div class="empty-text">no tokens found above ${minRatio}x ratio</div>
+        <div class="empty-hint">try a lower threshold or refresh for new data</div>
+      </div>`;
     return;
   }
   let html = `<table><thead><tr>
@@ -596,9 +698,16 @@ function renderVolumeTable() {
     <th onclick="setVolumeSort('h6')">6h</th><th onclick="setVolumeSort('h24')">24h</th>
   </tr></thead><tbody>`;
   filtered.forEach((t, i) => {
+    // Separate token name from ticker if they're concatenated
+    let displayName = t.name;
+    let displaySymbol = t.symbol;
+    // Check if name ends with the symbol (e.g., "Horse Fart DustHFD")
+    if (displayName.endsWith(displaySymbol) && displayName.length > displaySymbol.length) {
+      displayName = displayName.slice(0, -displaySymbol.length).trim();
+    }
     html += `<tr><td>${i+1}</td>
       <td><a class="token-link" href="https://dexscreener.com/solana/${t.address}" target="_blank">
-        <span class="token-name">${t.name}</span><span class="token-symbol">${t.symbol}</span></a></td>
+        <span class="token-name">${displayName}</span><span class="token-symbol">${displaySymbol}</span></a></td>
       <td class="mcap">${fmt(t.mcap)}</td><td class="volume">${fmt(t.volume)}</td>
       <td>${fmtRatio(t.ratio)}</td><td>${fmtPct(t.h1)}</td><td>${fmtPct(t.h6)}</td><td>${fmtPct(t.h24)}</td></tr>`;
   });
@@ -607,6 +716,8 @@ function renderVolumeTable() {
 }
 
 async function fetchVolumeData() {
+  const refreshBtn = document.querySelector('#tab-volume .controls button:last-child');
+  if (refreshBtn) refreshBtn.classList.add('loading');
   document.getElementById('volume-content').innerHTML = '<div class="loading"><span class="spinner"></span> scanning boosted tokens...</div>';
   try {
     allTokens = await fetchAllTokens();
@@ -615,6 +726,8 @@ async function fetchVolumeData() {
     renderVolumeTable();
   } catch (err) {
     document.getElementById('volume-content').innerHTML = '<div class="error">Error: ' + err.message + '</div>';
+  } finally {
+    if (refreshBtn) refreshBtn.classList.remove('loading');
   }
 }
 
@@ -796,7 +909,12 @@ function renderNarratives(tokens) {
   document.getElementById('narrativeLastUpdate').textContent = 'Last updated: ' + new Date().toLocaleString();
 
   if (narrativeStats.length === 0) {
-    document.getElementById('narrative-content').innerHTML = '<div class="loading">no narratives match current filters</div>';
+    document.getElementById('narrative-content').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🧠</div>
+        <div class="empty-text">no narratives match current filters</div>
+        <div class="empty-hint">try adjusting stage or type filters</div>
+      </div>`;
     return;
   }
 
@@ -830,7 +948,7 @@ function renderNarratives(tokens) {
         <span class="narrative-stat"><span class="narrative-stat-label">24h: </span>${fmtPct(n.avgH24)}</span>
         ${n.culturalCount > 0 ? `<span class="narrative-stat"><span class="narrative-stat-label">🌍: </span><span class="narrative-stat-value">${n.culturalCount}</span></span>` : ''}
         ${n.derivativeCount > 0 ? `<span class="narrative-stat"><span class="narrative-stat-label">🔗: </span><span class="narrative-stat-value">${n.derivativeCount}</span></span>` : ''}
-        <span class="saturation-indicator saturation-${n.saturation.toLowerCase()}">${n.saturation === 'High' ? '⚠️' : ''} ${n.saturation} Saturation</span>
+        <span class="saturation-indicator saturation-${n.saturation.toLowerCase()}" data-tooltip="${n.saturation === 'High' ? 'Many similar tokens — competition may be fierce' : n.saturation === 'Medium' ? 'Moderate competition in this narrative' : 'Low competition — potential early opportunity'}">${n.saturation === 'High' ? '⚠️' : ''} ${n.saturation} Saturation</span>
       </div>
       
       <div class="narrative-tokens">`;
@@ -906,12 +1024,16 @@ function toggleNarrativeExpand(idx, count) {
 }
 
 async function fetchNarrativeData() {
+  const refreshBtn = document.querySelector('#tab-narratives .controls button:last-child');
+  if (refreshBtn) refreshBtn.classList.add('loading');
   document.getElementById('narrative-content').innerHTML = '<div class="loading"><span class="spinner"></span> analyzing narratives...</div>';
   try {
     const tokens = await fetchAllTokens();
     renderNarratives(tokens);
   } catch (err) {
     document.getElementById('narrative-content').innerHTML = '<div class="error">Error: ' + err.message + '</div>';
+  } finally {
+    if (refreshBtn) refreshBtn.classList.remove('loading');
   }
 }
 
