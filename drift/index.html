@@ -921,10 +921,9 @@ canvas#cursor-trail {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 6;
+  z-index: 50;
   pointer-events: none;
-  opacity: 0;
-  animation: faceEmerge 3s ease-out 1.5s forwards;
+  opacity: 0.75;
 }
 
 .face-image img {
@@ -997,7 +996,7 @@ canvas#cursor-trail {
 
 @media (max-width: 900px) {
   .face-image {
-    opacity: 0.2 !important;
+    opacity: 0.5;
   }
   .face-image img {
     max-height: 40vh;
