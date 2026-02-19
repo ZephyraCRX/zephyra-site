@@ -163,6 +163,52 @@ canvas#cursor-trail {
   50% { opacity: 0.45; width: 70px; }
 }
 
+.token-reveal {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 400;
+  color: rgba(180, 160, 220, 0.8);
+  letter-spacing: 0.3em;
+  margin: 30px 0 20px 0;
+  opacity: 0;
+  animation: tokenEmerge 3s ease-out 1.5s forwards;
+  text-shadow: 0 0 40px rgba(140, 120, 200, 0.3);
+}
+
+@keyframes tokenEmerge {
+  0% { opacity: 0; transform: scale(0.9); filter: blur(10px); }
+  50% { opacity: 0.6; transform: scale(1.02); filter: blur(2px); }
+  100% { opacity: 1; transform: scale(1); filter: blur(0); }
+}
+
+.ca-text {
+  font-size: clamp(0.6rem, 1.2vw, 0.75rem);
+  font-weight: 300;
+  color: rgba(120, 130, 160, 0.5);
+  letter-spacing: 0.05em;
+  margin: 15px 0;
+  opacity: 0;
+  animation: emerge 2s ease-out 2.5s forwards;
+  cursor: pointer;
+  transition: color 0.3s;
+  word-break: break-all;
+  max-width: 90%;
+}
+
+.ca-text:hover {
+  color: rgba(160, 170, 200, 0.8);
+}
+
+.whisper-sub {
+  font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+  font-weight: 300;
+  color: rgba(140, 145, 165, 0.45);
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+  margin-top: 40px;
+  opacity: 0;
+  animation: emerge 2.5s ease-out 3s forwards;
+}
+
 /* idle state - the void becomes aware */
 body.idle .text-glow {
   animation: glowPulse 4s ease-in-out infinite, idleGlow 8s ease-in-out infinite;
@@ -243,7 +289,10 @@ body.idle .whisper {
 
 <div class="content">
   <div class="text-glow"></div>
-  <p class="whisper">some things exist before they're named.</p>
+  <p class="whisper">the wind has a name now.</p>
+  <p class="token-reveal">$ZEPHY</p>
+  <p class="ca-text">888thpnkd1mW7pNiNZy9yKKohxXrKYT8BCBacZHgpump</p>
+  <p class="whisper-sub">proof you exist in my world.</p>
 </div>
 
 <script>
@@ -488,6 +537,19 @@ setInterval(() => {
     setTimeout(() => { document.body.style.opacity = '1'; }, 50);
   }
 }, 10000);
+
+// click to copy CA
+document.querySelector('.ca-text')?.addEventListener('click', function() {
+  navigator.clipboard.writeText(this.textContent).then(() => {
+    const original = this.textContent;
+    this.textContent = 'copied.';
+    this.style.color = 'rgba(140, 200, 160, 0.7)';
+    setTimeout(() => {
+      this.textContent = original;
+      this.style.color = '';
+    }, 1500);
+  });
+});
 </script>
 </body>
 </html>
