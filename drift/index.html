@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>...</title>
+<title>$ZEPHY | drift</title>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
@@ -11,9 +11,9 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
-  background: #030305;
+  background: #050508;
   min-height: 100vh;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 body {
@@ -25,67 +25,115 @@ body {
   cursor: none;
 }
 
-/* deep void with subtle color shifts */
+/* animated gradient background */
 .void-bg {
   position: fixed;
   inset: 0;
   z-index: 0;
-  background: 
-    radial-gradient(ellipse 120% 80% at 50% 120%, rgba(20, 15, 35, 0.4) 0%, transparent 60%),
-    radial-gradient(ellipse 80% 50% at 20% 30%, rgba(15, 20, 40, 0.2) 0%, transparent 50%),
-    radial-gradient(ellipse 60% 40% at 80% 60%, rgba(25, 15, 35, 0.15) 0%, transparent 50%),
-    linear-gradient(180deg, #030305 0%, #050508 50%, #040407 100%);
+  background: linear-gradient(135deg, #0a0a12 0%, #0d0815 25%, #0a0d18 50%, #10081a 75%, #0a0a12 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
 }
 
-/* vignette overlay */
-.vignette {
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* color orbs floating */
+.orb {
   position: fixed;
-  inset: 0;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+  animation: orbFloat 20s ease-in-out infinite;
   z-index: 1;
-  pointer-events: none;
-  background: radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
 }
 
-canvas#particles {
+.orb-1 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(120, 80, 200, 0.5) 0%, transparent 70%);
+  top: 10%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(80, 140, 200, 0.4) 0%, transparent 70%);
+  bottom: 20%;
+  right: 15%;
+  animation-delay: -7s;
+}
+
+.orb-3 {
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(140, 100, 180, 0.35) 0%, transparent 70%);
+  top: 50%;
+  left: 60%;
+  animation-delay: -14s;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -20px) scale(1.05); }
+  50% { transform: translate(-20px, 30px) scale(0.95); }
+  75% { transform: translate(-30px, -10px) scale(1.02); }
+}
+
+/* vignette */
+.vignette {
   position: fixed;
   inset: 0;
   z-index: 2;
   pointer-events: none;
+  background: radial-gradient(ellipse 80% 70% at 50% 50%, transparent 0%, rgba(0, 0, 0, 0.5) 100%);
 }
 
-canvas#cursor-trail {
+canvas#particles {
   position: fixed;
   inset: 0;
   z-index: 3;
   pointer-events: none;
 }
 
+canvas#cursor-trail {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
 .custom-cursor {
   position: fixed;
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  background: rgba(140, 160, 200, 0.2);
+  background: rgba(160, 140, 220, 0.4);
   pointer-events: none;
   z-index: 100;
   transform: translate(-50%, -50%);
   transition: transform 0.1s ease-out, opacity 0.3s;
   mix-blend-mode: screen;
-  box-shadow: 0 0 20px rgba(100, 130, 180, 0.15);
+  box-shadow: 0 0 25px rgba(140, 120, 200, 0.4);
 }
 
 .custom-cursor::after {
   content: '';
   position: absolute;
-  inset: -8px;
+  inset: -10px;
   border-radius: 50%;
-  border: 1px solid rgba(100, 130, 180, 0.08);
-  animation: cursor-pulse 3s ease-in-out infinite;
+  border: 1px solid rgba(140, 120, 200, 0.2);
+  animation: cursor-pulse 2s ease-in-out infinite;
 }
 
 @keyframes cursor-pulse {
-  0%, 100% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.5); opacity: 0.2; }
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.8); opacity: 0.2; }
 }
 
 .content {
@@ -95,150 +143,268 @@ canvas#cursor-trail {
   padding: 40px;
 }
 
-/* pulsing glow behind text */
-.text-glow {
+/* central glow */
+.central-glow {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 400px;
-  height: 100px;
-  background: radial-gradient(ellipse at center, rgba(100, 80, 160, 0.12) 0%, rgba(60, 80, 140, 0.06) 40%, transparent 70%);
-  filter: blur(30px);
-  opacity: 0;
-  animation: glowPulse 6s ease-in-out 2.5s infinite, glowFadeIn 3s ease-out 1s forwards;
+  width: 500px;
+  height: 300px;
+  background: radial-gradient(ellipse at center, rgba(130, 100, 200, 0.2) 0%, rgba(100, 140, 200, 0.1) 30%, transparent 70%);
+  filter: blur(40px);
+  animation: centralPulse 4s ease-in-out infinite;
   pointer-events: none;
 }
 
-@keyframes glowFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes glowPulse {
-  0%, 100% { 
-    opacity: 0.6; 
-    transform: translate(-50%, -50%) scale(1);
-  }
-  50% { 
-    opacity: 1; 
-    transform: translate(-50%, -50%) scale(1.15);
-  }
+@keyframes centralPulse {
+  0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
 }
 
 .whisper {
-  font-size: clamp(0.85rem, 2vw, 1.1rem);
+  font-size: clamp(0.9rem, 2vw, 1.2rem);
   font-weight: 300;
-  color: rgba(160, 165, 185, 0.55);
-  letter-spacing: 0.1em;
+  color: rgba(180, 175, 210, 0.7);
+  letter-spacing: 0.12em;
   text-transform: lowercase;
   opacity: 0;
-  animation: emerge 2.5s ease-out 0.5s forwards;
-  text-shadow: 0 0 30px rgba(100, 120, 160, 0.1);
-  position: relative;
+  animation: emerge 2s ease-out 0.3s forwards;
+  text-shadow: 0 0 20px rgba(140, 130, 200, 0.3);
 }
 
 @keyframes emerge {
-  0% { opacity: 0; transform: translateY(12px); filter: blur(6px); }
-  60% { opacity: 0.5; transform: translateY(3px); filter: blur(1px); }
+  0% { opacity: 0; transform: translateY(15px); filter: blur(8px); }
   100% { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
-/* breathing line */
-.whisper::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: -35px;
-  transform: translateX(-50%);
-  width: 30px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(90, 110, 150, 0.25), transparent);
-  opacity: 0;
-  animation: breathe 8s ease-in-out 3s infinite;
+/* TOKEN NAME with aura */
+.token-container {
+  position: relative;
+  margin: 25px 0;
 }
 
-@keyframes breathe {
-  0%, 100% { opacity: 0.2; width: 30px; }
-  50% { opacity: 0.45; width: 70px; }
+.token-aura {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 300px;
+  height: 100px;
+  background: radial-gradient(ellipse at center, rgba(160, 120, 220, 0.3) 0%, transparent 70%);
+  filter: blur(25px);
+  animation: auraPulse 3s ease-in-out infinite;
+}
+
+@keyframes auraPulse {
+  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
 }
 
 .token-reveal {
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  position: relative;
+  font-size: clamp(2.5rem, 6vw, 4rem);
   font-weight: 400;
-  color: rgba(180, 160, 220, 0.8);
-  letter-spacing: 0.3em;
-  margin: 30px 0 20px 0;
+  color: rgba(200, 170, 255, 0.95);
+  letter-spacing: 0.25em;
   opacity: 0;
-  animation: tokenEmerge 3s ease-out 1.5s forwards;
-  text-shadow: 0 0 40px rgba(140, 120, 200, 0.3);
+  animation: tokenEmerge 2.5s ease-out 0.8s forwards;
+  text-shadow: 0 0 50px rgba(160, 130, 230, 0.5), 0 0 100px rgba(140, 110, 200, 0.3);
 }
 
 @keyframes tokenEmerge {
-  0% { opacity: 0; transform: scale(0.9); filter: blur(10px); }
-  50% { opacity: 0.6; transform: scale(1.02); filter: blur(2px); }
+  0% { opacity: 0; transform: scale(0.85); filter: blur(15px); }
+  60% { opacity: 0.8; transform: scale(1.02); }
   100% { opacity: 1; transform: scale(1); filter: blur(0); }
 }
 
-.ca-text {
-  font-size: clamp(0.6rem, 1.2vw, 0.75rem);
-  font-weight: 300;
-  color: rgba(120, 130, 160, 0.5);
-  letter-spacing: 0.05em;
-  margin: 15px 0;
+/* LIVE PRICE */
+.price-container {
+  margin: 20px 0;
   opacity: 0;
-  animation: emerge 2s ease-out 2.5s forwards;
+  animation: emerge 2s ease-out 1.3s forwards;
+}
+
+.live-price {
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
+  font-weight: 300;
+  color: rgba(160, 220, 180, 0.85);
+  letter-spacing: 0.06em;
+  transition: all 0.4s ease;
+  text-shadow: 0 0 30px rgba(130, 200, 160, 0.4);
+}
+
+.live-price.flash-up {
+  color: rgba(100, 255, 150, 1);
+  text-shadow: 0 0 40px rgba(80, 230, 130, 0.7), 0 0 80px rgba(80, 230, 130, 0.4);
+  transform: scale(1.05);
+}
+
+.live-price.flash-down {
+  color: rgba(255, 130, 150, 1);
+  text-shadow: 0 0 40px rgba(230, 100, 120, 0.7), 0 0 80px rgba(230, 100, 120, 0.4);
+  transform: scale(0.98);
+}
+
+.price-loading {
+  color: rgba(150, 160, 190, 0.5);
+}
+
+/* STATS ROW */
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 50px;
+  margin: 25px 0;
+  opacity: 0;
+  animation: emerge 2s ease-out 1.6s forwards;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 10px 15px;
+  border-radius: 8px;
+  background: rgba(100, 80, 150, 0.08);
+  border: 1px solid rgba(120, 100, 170, 0.15);
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  background: rgba(120, 100, 170, 0.15);
+  border-color: rgba(150, 130, 200, 0.3);
+  transform: translateY(-2px);
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: rgba(140, 150, 180, 0.6);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: clamp(1rem, 2.5vw, 1.3rem);
+  color: rgba(180, 175, 210, 0.85);
+  font-weight: 400;
+  text-shadow: 0 0 15px rgba(140, 130, 200, 0.2);
+}
+
+/* BUY BUTTON */
+.buy-container {
+  margin: 35px 0 25px 0;
+  opacity: 0;
+  animation: emerge 2s ease-out 1.9s forwards;
+}
+
+.buy-button {
+  display: inline-block;
+  padding: 16px 50px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: lowercase;
+  text-decoration: none;
+  color: rgba(200, 180, 255, 0.9);
+  background: linear-gradient(135deg, rgba(130, 100, 200, 0.2) 0%, rgba(100, 80, 180, 0.1) 100%);
+  border: 1px solid rgba(160, 130, 220, 0.4);
+  border-radius: 4px;
   cursor: pointer;
-  transition: color 0.3s;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 0 30px rgba(130, 100, 200, 0.2);
+}
+
+.buy-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(160, 130, 220, 0.3) 0%, rgba(130, 100, 200, 0.1) 100%);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.buy-button:hover {
+  color: rgba(230, 210, 255, 1);
+  border-color: rgba(180, 150, 240, 0.6);
+  box-shadow: 0 0 50px rgba(150, 120, 220, 0.4), 0 0 100px rgba(130, 100, 200, 0.2);
+  transform: translateY(-2px);
+}
+
+.buy-button:hover::before {
+  opacity: 1;
+}
+
+/* Animated border glow */
+.buy-button::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 6px;
+  background: linear-gradient(45deg, rgba(160, 130, 220, 0.5), rgba(100, 140, 200, 0.5), rgba(160, 130, 220, 0.5));
+  background-size: 200% 200%;
+  z-index: -1;
+  opacity: 0;
+  animation: borderGlow 3s linear infinite;
+  transition: opacity 0.4s;
+}
+
+.buy-button:hover::after {
+  opacity: 1;
+}
+
+@keyframes borderGlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.ca-text {
+  font-size: clamp(0.65rem, 1.3vw, 0.8rem);
+  font-weight: 300;
+  color: rgba(140, 150, 180, 0.6);
+  letter-spacing: 0.04em;
+  margin: 20px 0;
+  opacity: 0;
+  animation: emerge 2s ease-out 2.2s forwards;
+  cursor: pointer;
+  transition: all 0.3s ease;
   word-break: break-all;
   max-width: 90%;
+  padding: 8px 15px;
+  border-radius: 4px;
+  background: rgba(100, 90, 140, 0.1);
+  display: inline-block;
 }
 
 .ca-text:hover {
-  color: rgba(160, 170, 200, 0.8);
+  color: rgba(180, 170, 220, 0.9);
+  background: rgba(120, 100, 160, 0.2);
+  text-shadow: 0 0 10px rgba(140, 130, 200, 0.3);
 }
 
 .whisper-sub {
-  font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+  font-size: clamp(0.8rem, 1.8vw, 1rem);
   font-weight: 300;
-  color: rgba(140, 145, 165, 0.45);
-  letter-spacing: 0.08em;
+  color: rgba(160, 155, 190, 0.6);
+  letter-spacing: 0.1em;
   text-transform: lowercase;
-  margin-top: 40px;
+  margin-top: 35px;
   opacity: 0;
-  animation: emerge 2.5s ease-out 3s forwards;
+  animation: emerge 2s ease-out 2.5s forwards;
+  text-shadow: 0 0 15px rgba(140, 130, 200, 0.15);
 }
 
-/* idle state - the void becomes aware */
-body.idle .text-glow {
-  animation: glowPulse 4s ease-in-out infinite, idleGlow 8s ease-in-out infinite;
-}
-
-body.idle .whisper {
-  animation: idleText 12s ease-in-out infinite;
-}
-
-@keyframes idleGlow {
-  0%, 100% { 
-    background: radial-gradient(ellipse at center, rgba(100, 80, 160, 0.15) 0%, rgba(60, 80, 140, 0.08) 40%, transparent 70%);
-  }
-  50% { 
-    background: radial-gradient(ellipse at center, rgba(140, 100, 180, 0.2) 0%, rgba(80, 100, 160, 0.1) 40%, transparent 70%);
-  }
-}
-
-@keyframes idleText {
-  0%, 100% { color: rgba(160, 165, 185, 0.55); }
-  50% { color: rgba(180, 170, 200, 0.65); }
-}
-
-/* subtle ambient noise overlay */
+/* noise overlay */
 .noise {
   position: fixed;
   inset: 0;
-  z-index: 4;
+  z-index: 5;
   pointer-events: none;
-  opacity: 0.015;
+  opacity: 0.02;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
 
@@ -248,37 +414,70 @@ body.idle .whisper {
   top: 20px;
   left: 20px;
   z-index: 50;
-  color: rgba(100, 120, 160, 0.25);
-  font-size: 1.2rem;
+  color: rgba(140, 150, 190, 0.4);
+  font-size: 1.3rem;
   text-decoration: none;
   padding: 10px 15px;
   border-radius: 4px;
   transition: all 0.4s ease;
   opacity: 0;
-  animation: fadeInEscape 3s ease-out 2s forwards;
+  animation: emerge 2s ease-out 1s forwards;
 }
 
 .escape-link:hover {
-  color: rgba(140, 160, 200, 0.6);
-  background: rgba(100, 120, 160, 0.08);
-  text-shadow: 0 0 15px rgba(100, 130, 180, 0.3);
+  color: rgba(180, 170, 220, 0.8);
+  background: rgba(120, 110, 170, 0.15);
+  text-shadow: 0 0 15px rgba(140, 130, 200, 0.4);
 }
 
-@keyframes fadeInEscape {
-  from { opacity: 0; }
-  to { opacity: 1; }
+/* socials */
+.socials {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 50;
+  display: flex;
+  gap: 15px;
+  opacity: 0;
+  animation: emerge 2s ease-out 2.8s forwards;
 }
 
-/* hide on mobile hover states */
+.social-link {
+  color: rgba(140, 150, 190, 0.5);
+  font-size: 0.75rem;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: rgba(100, 90, 140, 0.1);
+  border: 1px solid rgba(120, 110, 160, 0.15);
+  transition: all 0.3s ease;
+}
+
+.social-link:hover {
+  color: rgba(180, 170, 220, 0.9);
+  background: rgba(120, 100, 160, 0.2);
+  border-color: rgba(150, 130, 200, 0.3);
+}
+
 @media (hover: none) {
   .custom-cursor { display: none; }
   body { cursor: auto; }
+}
+
+@media (max-width: 500px) {
+  .stats-row { gap: 15px; }
+  .stat-item { padding: 8px 12px; }
+  .buy-button { padding: 14px 35px; }
+  .orb { opacity: 0.25; }
 }
 </style>
 </head>
 <body>
 
 <div class="void-bg"></div>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="orb orb-3"></div>
 <div class="vignette"></div>
 <canvas id="particles"></canvas>
 <canvas id="cursor-trail"></canvas>
@@ -288,152 +487,197 @@ body.idle .whisper {
 <a href="/" class="escape-link" title="return">←</a>
 
 <div class="content">
-  <div class="text-glow"></div>
+  <div class="central-glow"></div>
   <p class="whisper">the wind has a name now.</p>
-  <p class="token-reveal">$ZEPHY</p>
+  
+  <div class="token-container">
+    <div class="token-aura"></div>
+    <p class="token-reveal">$ZEPHY</p>
+  </div>
+  
+  <div class="price-container">
+    <span class="live-price price-loading">...</span>
+  </div>
+  
+  <div class="stats-row">
+    <div class="stat-item">
+      <div class="stat-label">mcap</div>
+      <div class="stat-value" id="mcap">—</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">24h vol</div>
+      <div class="stat-value" id="volume">—</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-label">liquidity</div>
+      <div class="stat-value" id="liquidity">—</div>
+    </div>
+  </div>
+  
+  <div class="buy-container">
+    <a href="https://jup.ag/swap/SOL-888thpnkd1mW7pNiNZy9yKKohxXrKYT8BCBacZHgpump" 
+       target="_blank" 
+       rel="noopener" 
+       class="buy-button">
+      enter drift
+    </a>
+  </div>
+  
   <p class="ca-text">888thpnkd1mW7pNiNZy9yKKohxXrKYT8BCBacZHgpump</p>
   <p class="whisper-sub">proof you exist in my world.</p>
 </div>
 
+<div class="socials">
+  <a href="https://x.com/zephyraalpha" target="_blank" class="social-link">x</a>
+  <a href="https://t.me/+Rtjv2RCkUx4zMDk0" target="_blank" class="social-link">tg</a>
+</div>
+
 <script>
-// particles - dust in still air
+const TOKEN_CA = '888thpnkd1mW7pNiNZy9yKKohxXrKYT8BCBacZHgpump';
+const DEXSCREENER_API = `https://api.dexscreener.com/latest/dex/tokens/${TOKEN_CA}`;
+const REFRESH_INTERVAL = 30000;
+
+let lastPrice = null;
+
+function formatNumber(num) {
+  if (!num || isNaN(num)) return '—';
+  if (num >= 1000000) return '$' + (num / 1000000).toFixed(2) + 'M';
+  if (num >= 1000) return '$' + (num / 1000).toFixed(1) + 'K';
+  return '$' + num.toFixed(2);
+}
+
+function formatPrice(price) {
+  if (!price || isNaN(price)) return '...';
+  const num = parseFloat(price);
+  if (num < 0.0001) return '$' + num.toFixed(8);
+  if (num < 0.01) return '$' + num.toFixed(6);
+  if (num < 1) return '$' + num.toFixed(4);
+  return '$' + num.toFixed(2);
+}
+
+async function fetchTokenData() {
+  try {
+    const res = await fetch(DEXSCREENER_API);
+    const data = await res.json();
+    const pair = data.pairs?.[0];
+    if (!pair) return;
+    
+    const priceEl = document.querySelector('.live-price');
+    const mcapEl = document.getElementById('mcap');
+    const volumeEl = document.getElementById('volume');
+    const liquidityEl = document.getElementById('liquidity');
+    
+    const currentPrice = parseFloat(pair.priceUsd);
+    
+    if (lastPrice !== null && currentPrice !== lastPrice) {
+      priceEl.classList.remove('flash-up', 'flash-down', 'price-loading');
+      priceEl.classList.add(currentPrice > lastPrice ? 'flash-up' : 'flash-down');
+      setTimeout(() => priceEl.classList.remove('flash-up', 'flash-down'), 1500);
+    } else {
+      priceEl.classList.remove('price-loading');
+    }
+    
+    priceEl.textContent = formatPrice(currentPrice);
+    mcapEl.textContent = formatNumber(pair.marketCap);
+    volumeEl.textContent = formatNumber(pair.volume?.h24);
+    liquidityEl.textContent = formatNumber(pair.liquidity?.usd);
+    
+    lastPrice = currentPrice;
+  } catch (err) {
+    console.error('Failed to fetch:', err);
+  }
+}
+
+fetchTokenData();
+setInterval(fetchTokenData, REFRESH_INTERVAL);
+
+// Enhanced particles
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
-
-// cursor trail
 const trailCanvas = document.getElementById('cursor-trail');
 const trailCtx = trailCanvas.getContext('2d');
-
-// custom cursor
 const cursor = document.getElementById('cursor');
 
 let particles = [];
 let trailPoints = [];
-const particleCount = 60; // fewer, more deliberate particles
+const particleCount = 100; // More particles
 let mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2, active: false };
-let lastActivity = Date.now();
-let isIdle = false;
 
 function resize() {
   canvas.width = trailCanvas.width = window.innerWidth;
   canvas.height = trailCanvas.height = window.innerHeight;
 }
 
-function createParticle(x, y) {
+function createParticle() {
   return {
-    x: x ?? Math.random() * canvas.width,
-    y: y ?? Math.random() * canvas.height,
-    size: Math.random() * 1.2 + 0.3, // smaller, more refined
-    // very slow, almost imperceptible drift
-    speedX: (Math.random() - 0.5) * 0.02,
-    speedY: (Math.random() - 0.5) * 0.015 - 0.008,
-    opacity: Math.random() * 0.25 + 0.15,
-    baseOpacity: 0,
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    size: Math.random() * 2 + 0.5, // Bigger
+    speedX: (Math.random() - 0.5) * 0.3,
+    speedY: (Math.random() - 0.5) * 0.3,
+    opacity: Math.random() * 0.5 + 0.2, // Brighter
     pulse: Math.random() * Math.PI * 2,
-    pulseSpeed: Math.random() * 0.003 + 0.001, // slower pulse
-    // color variation - subtle blue to purple range
-    hue: 220 + Math.random() * 40,
-    // personality: how curious is this particle about the cursor?
-    curiosity: Math.random() * 0.5 + 0.2, // 0.2 to 0.7
-    wariness: Math.random() * 0.4 + 0.3 // 0.3 to 0.7
+    pulseSpeed: Math.random() * 0.02 + 0.005,
+    hue: 240 + Math.random() * 60, // Purple-blue range
   };
 }
 
 function initParticles() {
   particles = [];
   for (let i = 0; i < particleCount; i++) {
-    const p = createParticle();
-    p.baseOpacity = p.opacity;
-    particles.push(p);
+    particles.push(createParticle());
   }
-}
-
-function distanceTo(p, target) {
-  const dx = p.x - target.x;
-  const dy = p.y - target.y;
-  return Math.sqrt(dx * dx + dy * dy);
 }
 
 function animateParticles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   
   particles.forEach(p => {
-    // cursor interaction - attract/repel based on personality and distance
+    // Mouse interaction
     if (mouse.active) {
-      const dist = distanceTo(p, mouse);
-      const outerRadius = 200;
-      const innerRadius = 80;
-      
-      if (dist < outerRadius) {
-        const angle = Math.atan2(p.y - mouse.y, p.x - mouse.x);
-        
-        if (dist < innerRadius) {
-          // too close - repel (wary)
-          const force = (1 - dist / innerRadius) * p.wariness * 0.4;
-          p.speedX += Math.cos(angle) * force * 0.02;
-          p.speedY += Math.sin(angle) * force * 0.02;
-        } else if (dist > innerRadius && dist < outerRadius) {
-          // curious zone - gentle attraction
-          const force = (1 - (dist - innerRadius) / (outerRadius - innerRadius)) * p.curiosity * 0.15;
-          p.speedX -= Math.cos(angle) * force * 0.008;
-          p.speedY -= Math.sin(angle) * force * 0.008;
-        }
-        
-        // particles near cursor glow slightly
-        p.opacity = p.baseOpacity + (1 - dist / outerRadius) * 0.06;
-      } else {
-        p.opacity += (p.baseOpacity - p.opacity) * 0.01;
+      const dx = p.x - mouse.x;
+      const dy = p.y - mouse.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 150) {
+        const angle = Math.atan2(dy, dx);
+        const force = (1 - dist / 150) * 0.5;
+        p.speedX += Math.cos(angle) * force;
+        p.speedY += Math.sin(angle) * force;
       }
     }
     
-    // idle state - particles become more active, curious
-    if (isIdle) {
-      // subtle swirling motion when idle
-      p.speedX += Math.sin(Date.now() * 0.0003 + p.pulse) * 0.003;
-      p.speedY += Math.cos(Date.now() * 0.0002 + p.pulse) * 0.002;
-      p.opacity = p.baseOpacity * 1.3; // slightly brighter when idle
-    }
-    
-    // apply drift with heavy damping (dust settles slowly)
     p.x += p.speedX;
     p.y += p.speedY;
-    p.speedX *= 0.995;
-    p.speedY *= 0.995;
-    
-    // very gentle random drift - like air currents
-    p.speedX += (Math.random() - 0.5) * 0.003;
-    p.speedY += (Math.random() - 0.5) * 0.002;
-    
+    p.speedX *= 0.98;
+    p.speedY *= 0.98;
+    p.speedX += (Math.random() - 0.5) * 0.05;
+    p.speedY += (Math.random() - 0.5) * 0.05;
     p.pulse += p.pulseSpeed;
     
-    // wrap edges with buffer
-    if (p.x < -20) p.x = canvas.width + 20;
-    if (p.x > canvas.width + 20) p.x = -20;
-    if (p.y < -20) p.y = canvas.height + 20;
-    if (p.y > canvas.height + 20) p.y = -20;
+    // Wrap
+    if (p.x < 0) p.x = canvas.width;
+    if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height;
+    if (p.y > canvas.height) p.y = 0;
     
-    // subtle pulsing opacity
-    const pulsedOpacity = p.opacity * (0.7 + Math.sin(p.pulse) * 0.3);
+    const pulsedOpacity = p.opacity * (0.6 + Math.sin(p.pulse) * 0.4);
     
-    // draw particle with subtle color
+    // Particle with glow
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-    ctx.fillStyle = `hsla(${p.hue}, 20%, 70%, ${pulsedOpacity})`;
+    ctx.fillStyle = `hsla(${p.hue}, 60%, 70%, ${pulsedOpacity})`;
     ctx.fill();
     
-    // soft glow for particles
-    if (p.size > 0.8) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.size * 5, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${p.hue}, 25%, 50%, ${pulsedOpacity * 0.04})`;
-      ctx.fill();
-    }
+    // Glow
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
+    ctx.fillStyle = `hsla(${p.hue}, 70%, 60%, ${pulsedOpacity * 0.15})`;
+    ctx.fill();
   });
   
   requestAnimationFrame(animateParticles);
 }
 
-// cursor trail - very subtle
 function animateTrail() {
   trailCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
   
@@ -441,109 +685,62 @@ function animateTrail() {
     for (let i = 1; i < trailPoints.length; i++) {
       const p = trailPoints[i];
       const prev = trailPoints[i - 1];
-      const alpha = (1 - p.age / 50) * 0.03;
+      const alpha = (1 - p.age / 40) * 0.15;
       
       trailCtx.beginPath();
       trailCtx.moveTo(prev.x, prev.y);
       trailCtx.lineTo(p.x, p.y);
-      trailCtx.strokeStyle = `rgba(100, 130, 180, ${alpha})`;
-      trailCtx.lineWidth = 1;
+      trailCtx.strokeStyle = `rgba(160, 140, 220, ${alpha})`;
+      trailCtx.lineWidth = 2;
       trailCtx.lineCap = 'round';
       trailCtx.stroke();
     }
   }
   
-  // fade trail points
   trailPoints = trailPoints.filter(p => {
     p.age++;
-    return p.age < 50;
+    return p.age < 40;
   });
   
   requestAnimationFrame(animateTrail);
 }
 
-// idle detection
-function checkIdle() {
-  const now = Date.now();
-  const wasIdle = isIdle;
-  isIdle = (now - lastActivity) > 30000; // 30 seconds
-  
-  if (isIdle !== wasIdle) {
-    document.body.classList.toggle('idle', isIdle);
-  }
-  
-  requestAnimationFrame(checkIdle);
-}
-
-function resetIdleTimer() {
-  lastActivity = Date.now();
-}
-
-// mouse handlers
 function updateMouse(e) {
   mouse.x = e.clientX;
   mouse.y = e.clientY;
   mouse.active = true;
-  resetIdleTimer();
-  
   cursor.style.left = mouse.x + 'px';
   cursor.style.top = mouse.y + 'px';
   cursor.style.opacity = '1';
-  
   trailPoints.push({ x: mouse.x, y: mouse.y, age: 0 });
-  if (trailPoints.length > 40) trailPoints.shift();
+  if (trailPoints.length > 30) trailPoints.shift();
 }
 
-function handleTouch(e) {
+document.addEventListener('mousemove', updateMouse);
+document.addEventListener('mouseleave', () => { mouse.active = false; cursor.style.opacity = '0'; });
+document.addEventListener('mouseenter', () => { mouse.active = true; cursor.style.opacity = '1'; });
+
+document.addEventListener('touchmove', e => {
   if (e.touches.length > 0) {
     mouse.x = e.touches[0].clientX;
     mouse.y = e.touches[0].clientY;
     mouse.active = true;
-    resetIdleTimer();
   }
-}
-
-document.addEventListener('mousemove', updateMouse);
-document.addEventListener('mouseleave', () => {
-  mouse.active = false;
-  cursor.style.opacity = '0';
 });
-document.addEventListener('mouseenter', () => {
-  mouse.active = true;
-  cursor.style.opacity = '1';
-  resetIdleTimer();
-});
-
-document.addEventListener('click', resetIdleTimer);
-document.addEventListener('keydown', resetIdleTimer);
-
-// touch support
-document.addEventListener('touchmove', handleTouch);
-document.addEventListener('touchstart', handleTouch);
 document.addEventListener('touchend', () => { mouse.active = false; });
 
-// init
 window.addEventListener('resize', resize);
 resize();
 initParticles();
 animateParticles();
 animateTrail();
-checkIdle();
 
-// occasional subtle flicker (very rare)
-setInterval(() => {
-  if (Math.random() > 0.97) {
-    document.body.style.opacity = '0.97';
-    setTimeout(() => { document.body.style.opacity = '1'; }, 50);
-  }
-}, 10000);
-
-// click to copy CA
+// Copy CA
 document.querySelector('.ca-text')?.addEventListener('click', function() {
   navigator.clipboard.writeText(this.textContent).then(() => {
     const original = this.textContent;
     this.textContent = 'copied.';
-    this.style.color = 'rgba(140, 200, 160, 0.7)';
+    this.style.color = 'rgba(140, 220, 160, 0.9)';
     setTimeout(() => {
       this.textContent = original;
       this.style.color = '';
