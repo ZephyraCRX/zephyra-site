@@ -924,6 +924,11 @@ canvas#cursor-trail {
   z-index: 50;
   pointer-events: none;
   opacity: 0.8;
+  width: 300px;
+  height: 70vh;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .face-image img {
@@ -936,9 +941,7 @@ canvas#cursor-trail {
 /* Left face - half emerging from darkness */
 .face-left {
   left: 0;
-}
-
-.face-left img {
+  background-image: url('assets/face-left.png');
   mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%);
   -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%);
 }
@@ -950,9 +953,7 @@ canvas#cursor-trail {
 /* Right face - direct gaze, slight smirk */
 .face-right {
   right: 0;
-}
-
-.face-right img {
+  background-image: url('assets/face-right.png');
   mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%);
   -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%);
 }
@@ -1030,12 +1031,8 @@ canvas#cursor-trail {
 <div class="orb orb-3"></div>
 
 <!-- Face images framing the content -->
-<div class="face-image face-left">
-  <img src="assets/face-left.png" alt="" width="512" height="768">
-</div>
-<div class="face-image face-right">
-  <img src="assets/face-right.png" alt="" width="512" height="768">
-</div>
+<div class="face-image face-left"></div>
+<div class="face-image face-right"></div>
 
 <div class="vignette"></div>
 <canvas id="particles"></canvas>
