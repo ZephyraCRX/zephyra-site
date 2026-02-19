@@ -396,6 +396,398 @@ canvas#cursor-trail {
   100% { transform: scale(1); }
 }
 
+/* HOLDER VERIFICATION SECTION */
+.verification-section {
+  margin: 25px 0;
+  opacity: 0;
+  animation: emerge 2s ease-out 1.2s forwards;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.verification-badge {
+  position: relative;
+  padding: 15px 30px;
+  border-radius: 12px;
+  background: rgba(20, 15, 35, 0.6);
+  border: 1px solid rgba(120, 100, 170, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.4s ease;
+}
+
+.verification-badge.verified {
+  border-color: rgba(100, 220, 160, 0.5);
+  background: rgba(60, 140, 100, 0.15);
+}
+
+.verification-badge.not-holder {
+  border-color: rgba(200, 120, 140, 0.4);
+  background: rgba(140, 60, 80, 0.1);
+}
+
+.badge-glow {
+  position: absolute;
+  inset: -3px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(140, 120, 200, 0.3), rgba(100, 200, 160, 0.2));
+  opacity: 0;
+  filter: blur(8px);
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+
+.verification-badge.verified .badge-glow {
+  opacity: 1;
+  background: linear-gradient(135deg, rgba(100, 220, 160, 0.4), rgba(80, 180, 140, 0.3));
+}
+
+.badge-icon {
+  font-size: 1.5rem;
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+.badge-status {
+  font-size: 0.85rem;
+  color: rgba(180, 175, 210, 0.8);
+  letter-spacing: 0.08em;
+  transition: all 0.4s ease;
+}
+
+.verification-badge.verified .badge-status {
+  color: rgba(140, 230, 180, 0.95);
+  text-shadow: 0 0 15px rgba(100, 200, 150, 0.4);
+}
+
+.verification-badge.not-holder .badge-status {
+  color: rgba(220, 150, 160, 0.85);
+}
+
+.connect-wallet-btn {
+  position: relative;
+  padding: 12px 35px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: rgba(200, 180, 255, 0.9);
+  background: linear-gradient(135deg, rgba(100, 80, 160, 0.25) 0%, rgba(80, 60, 140, 0.15) 100%);
+  border: 1px solid rgba(140, 110, 200, 0.4);
+  border-radius: 6px;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.connect-wallet-btn:hover {
+  color: rgba(230, 210, 255, 1);
+  border-color: rgba(170, 140, 230, 0.6);
+  box-shadow: 0 0 30px rgba(130, 100, 200, 0.3);
+  transform: translateY(-1px);
+}
+
+.connect-wallet-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-shimmer {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(200, 180, 255, 0.15), transparent);
+  transition: left 0.6s ease;
+}
+
+.connect-wallet-btn:hover .btn-shimmer {
+  left: 100%;
+}
+
+.connect-wallet-btn.connecting .btn-text {
+  animation: voidBreathe 2s ease-in-out infinite;
+}
+
+.wallet-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 15px;
+  background: rgba(80, 70, 120, 0.15);
+  border-radius: 6px;
+  border: 1px solid rgba(120, 100, 160, 0.2);
+}
+
+.wallet-address {
+  font-size: 0.75rem;
+  color: rgba(160, 150, 200, 0.7);
+  letter-spacing: 0.05em;
+}
+
+.disconnect-btn {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  padding: 4px 10px;
+  color: rgba(180, 140, 160, 0.7);
+  background: transparent;
+  border: 1px solid rgba(160, 120, 140, 0.3);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.disconnect-btn:hover {
+  color: rgba(220, 160, 180, 0.9);
+  border-color: rgba(200, 140, 160, 0.5);
+  background: rgba(160, 100, 120, 0.1);
+}
+
+.holder-details {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: rgba(60, 140, 100, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(100, 180, 140, 0.2);
+  animation: emerge 0.6s ease-out forwards;
+}
+
+.holder-balance {
+  font-size: 1.1rem;
+  color: rgba(140, 220, 180, 0.9);
+  letter-spacing: 0.06em;
+  text-shadow: 0 0 20px rgba(100, 200, 150, 0.3);
+}
+
+.holder-tier {
+  font-size: 0.8rem;
+  color: rgba(180, 220, 200, 0.7);
+  letter-spacing: 0.1em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.holder-tier .tier-icon {
+  font-size: 1rem;
+}
+
+/* Tier colors */
+.holder-tier.whale { color: rgba(160, 200, 255, 0.95); text-shadow: 0 0 15px rgba(120, 180, 255, 0.4); }
+.holder-tier.dolphin { color: rgba(160, 220, 200, 0.9); text-shadow: 0 0 15px rgba(100, 200, 180, 0.4); }
+.holder-tier.fish { color: rgba(180, 200, 180, 0.85); }
+.holder-tier.shrimp { color: rgba(180, 170, 200, 0.75); }
+
+/* Verification Code Section */
+.verification-code-section {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.get-code-btn {
+  background: linear-gradient(135deg, rgba(100, 180, 160, 0.2) 0%, rgba(80, 160, 140, 0.15) 100%);
+  border: 1px solid rgba(100, 180, 160, 0.3);
+  color: rgba(140, 200, 180, 0.9);
+  padding: 12px 28px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.get-code-btn:hover {
+  background: linear-gradient(135deg, rgba(100, 180, 160, 0.3) 0%, rgba(80, 160, 140, 0.25) 100%);
+  border-color: rgba(100, 180, 160, 0.5);
+  transform: translateY(-2px);
+}
+
+.code-display {
+  background: rgba(20, 25, 35, 0.6);
+  border: 1px solid rgba(100, 180, 160, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  min-width: 280px;
+}
+
+.code-label {
+  font-size: 0.75rem;
+  color: rgba(160, 180, 200, 0.6);
+  margin-bottom: 10px;
+  letter-spacing: 0.05em;
+}
+
+.code-value {
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: rgba(140, 220, 180, 0.95);
+  letter-spacing: 0.15em;
+  padding: 12px;
+  background: rgba(60, 100, 80, 0.15);
+  border-radius: 6px;
+  margin-bottom: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  user-select: all;
+}
+
+.copy-code-btn {
+  background: transparent;
+  border: 1px solid rgba(140, 180, 200, 0.3);
+  color: rgba(140, 180, 200, 0.7);
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+  transition: all 0.2s ease;
+}
+
+.copy-code-btn:hover {
+  background: rgba(140, 180, 200, 0.1);
+  border-color: rgba(140, 180, 200, 0.5);
+}
+
+.copy-code-btn.copied {
+  color: rgba(140, 220, 180, 0.9);
+  border-color: rgba(140, 220, 180, 0.5);
+}
+
+.code-instructions {
+  margin-top: 15px;
+  font-size: 0.75rem;
+  color: rgba(160, 180, 200, 0.5);
+}
+
+.code-instructions a {
+  color: rgba(160, 140, 220, 0.8);
+  text-decoration: none;
+}
+
+.code-instructions a:hover {
+  text-decoration: underline;
+}
+
+/* Wallet selector modal */
+.wallet-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 5, 12, 0.9);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.wallet-modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.wallet-modal-content {
+  background: rgba(20, 18, 35, 0.98);
+  border: 1px solid rgba(120, 100, 170, 0.3);
+  border-radius: 16px;
+  padding: 30px;
+  max-width: 340px;
+  width: 90%;
+  box-shadow: 0 0 60px rgba(100, 80, 160, 0.3);
+  transform: translateY(20px);
+  transition: transform 0.3s ease;
+}
+
+.wallet-modal.active .wallet-modal-content {
+  transform: translateY(0);
+}
+
+.wallet-modal-title {
+  font-size: 1rem;
+  color: rgba(200, 180, 240, 0.9);
+  letter-spacing: 0.1em;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.wallet-option {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  padding: 15px 20px;
+  margin-bottom: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: rgba(180, 175, 210, 0.9);
+  background: rgba(80, 70, 130, 0.15);
+  border: 1px solid rgba(120, 100, 170, 0.25);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.wallet-option:hover {
+  background: rgba(100, 80, 160, 0.25);
+  border-color: rgba(150, 120, 200, 0.4);
+  transform: translateX(5px);
+}
+
+.wallet-option img {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.wallet-option-name {
+  flex: 1;
+}
+
+.wallet-option-status {
+  font-size: 0.7rem;
+  color: rgba(140, 200, 160, 0.7);
+}
+
+.wallet-modal-close {
+  display: block;
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: rgba(150, 140, 180, 0.6);
+  background: transparent;
+  border: 1px solid rgba(120, 100, 150, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.wallet-modal-close:hover {
+  color: rgba(180, 170, 220, 0.8);
+  border-color: rgba(150, 130, 180, 0.4);
+}
+
 /* MILESTONE TRACKER */
 .milestone-container {
   margin: 25px 0;
@@ -960,6 +1352,41 @@ canvas#cursor-trail {
     </span>
   </div>
   
+  <!-- HOLDER VERIFICATION -->
+  <div class="verification-section" id="verification-section">
+    <div class="verification-badge" id="verification-badge">
+      <div class="badge-glow"></div>
+      <div class="badge-icon" id="badge-icon">🌬️</div>
+      <div class="badge-status" id="badge-status">prove you drift</div>
+    </div>
+    <button class="connect-wallet-btn" id="connect-btn">
+      <span class="btn-text">connect wallet</span>
+      <span class="btn-shimmer"></span>
+    </button>
+    <div class="wallet-info" id="wallet-info" style="display: none;">
+      <div class="wallet-address" id="wallet-address"></div>
+      <button class="disconnect-btn" id="disconnect-btn">disconnect</button>
+    </div>
+    <div class="holder-details" id="holder-details" style="display: none;">
+      <div class="holder-balance" id="holder-balance"></div>
+      <div class="holder-tier" id="holder-tier"></div>
+    </div>
+    <div class="verification-code-section" id="verification-code-section" style="display: none;">
+      <button class="get-code-btn" id="get-code-btn">
+        <span class="btn-text">get telegram code</span>
+        <span class="btn-shimmer"></span>
+      </button>
+      <div class="code-display" id="code-display" style="display: none;">
+        <div class="code-label">your verification code:</div>
+        <div class="code-value" id="code-value"></div>
+        <button class="copy-code-btn" id="copy-code-btn">copy</button>
+        <div class="code-instructions">
+          paste this in <a href="https://t.me/+Rtjv2RCkUx4zMDk0" target="_blank">zephyra's trenches</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
   <!-- HOLDER COUNTER -->
   <div class="holder-counter">
     <span class="holder-count holder-loading">counting shadows</span>
@@ -1064,6 +1491,24 @@ canvas#cursor-trail {
 <div class="socials">
   <a href="https://x.com/zephyraalpha" target="_blank" class="social-link">x</a>
   <a href="https://t.me/+Rtjv2RCkUx4zMDk0" target="_blank" class="social-link">tg</a>
+</div>
+
+<!-- Wallet Selector Modal -->
+<div class="wallet-modal" id="wallet-modal">
+  <div class="wallet-modal-content">
+    <div class="wallet-modal-title">select wallet</div>
+    <button class="wallet-option" data-wallet="phantom">
+      <img src="https://phantom.app/img/phantom-icon-purple.svg" alt="Phantom">
+      <span class="wallet-option-name">Phantom</span>
+      <span class="wallet-option-status" id="phantom-status"></span>
+    </button>
+    <button class="wallet-option" data-wallet="solflare">
+      <img src="https://solflare.com/favicon.ico" alt="Solflare">
+      <span class="wallet-option-name">Solflare</span>
+      <span class="wallet-option-status" id="solflare-status"></span>
+    </button>
+    <button class="wallet-modal-close" id="modal-close">cancel</button>
+  </div>
 </div>
 
 <!-- Chart.js for holder graph -->
@@ -1645,6 +2090,391 @@ if (document.readyState === 'loading') {
 } else {
   setTimeout(initHolderChart, 100);
 }
+
+// ====== HOLDER VERIFICATION SYSTEM ======
+const ZEPHY_TOKEN_MINT = '888thpnkd1mW7pNiNZy9yKKohxXrKYT8BCBacZHgpump';
+const HELIUS_RPC = 'https://mainnet.helius-rpc.com/?api-key=15319bf4-5b40-4958-ac8d-6313aa55eb92';
+
+// Tier thresholds (in token amount)
+const TIERS = [
+  { name: 'whale', min: 1000000, icon: '🐋', label: 'whale drifter' },
+  { name: 'dolphin', min: 100000, icon: '🐬', label: 'dolphin drifter' },
+  { name: 'fish', min: 10000, icon: '🐟', label: 'fish drifter' },
+  { name: 'shrimp', min: 0, icon: '🦐', label: 'shrimp drifter' }
+];
+
+let connectedWallet = null;
+let walletProvider = null;
+
+// DOM elements
+const connectBtn = document.getElementById('connect-btn');
+const walletModal = document.getElementById('wallet-modal');
+const modalClose = document.getElementById('modal-close');
+const walletOptions = document.querySelectorAll('.wallet-option');
+const walletInfo = document.getElementById('wallet-info');
+const walletAddress = document.getElementById('wallet-address');
+const disconnectBtn = document.getElementById('disconnect-btn');
+const verificationBadge = document.getElementById('verification-badge');
+const badgeIcon = document.getElementById('badge-icon');
+const badgeStatus = document.getElementById('badge-status');
+const holderDetails = document.getElementById('holder-details');
+const holderBalance = document.getElementById('holder-balance');
+const holderTier = document.getElementById('holder-tier');
+
+// Check wallet availability
+function checkWallets() {
+  const phantomStatus = document.getElementById('phantom-status');
+  const solflareStatus = document.getElementById('solflare-status');
+  
+  if (window.solana?.isPhantom) {
+    phantomStatus.textContent = 'detected';
+  } else {
+    phantomStatus.textContent = 'not installed';
+    phantomStatus.style.color = 'rgba(200, 140, 140, 0.6)';
+  }
+  
+  if (window.solflare?.isSolflare) {
+    solflareStatus.textContent = 'detected';
+  } else {
+    solflareStatus.textContent = 'not installed';
+    solflareStatus.style.color = 'rgba(200, 140, 140, 0.6)';
+  }
+}
+
+// Open wallet modal
+function openModal() {
+  checkWallets();
+  walletModal.classList.add('active');
+}
+
+// Close wallet modal
+function closeModal() {
+  walletModal.classList.remove('active');
+}
+
+// Connect to wallet
+async function connectWallet(walletType) {
+  try {
+    connectBtn.classList.add('connecting');
+    connectBtn.querySelector('.btn-text').textContent = 'connecting...';
+    
+    let provider;
+    
+    if (walletType === 'phantom') {
+      if (!window.solana?.isPhantom) {
+        window.open('https://phantom.app/', '_blank');
+        throw new Error('Phantom not installed');
+      }
+      provider = window.solana;
+    } else if (walletType === 'solflare') {
+      if (!window.solflare?.isSolflare) {
+        window.open('https://solflare.com/', '_blank');
+        throw new Error('Solflare not installed');
+      }
+      provider = window.solflare;
+    }
+    
+    const resp = await provider.connect();
+    connectedWallet = resp.publicKey.toString();
+    walletProvider = provider;
+    
+    closeModal();
+    onWalletConnected();
+    
+  } catch (err) {
+    console.error('Wallet connection failed:', err);
+    resetUI();
+  }
+}
+
+// Handle wallet connected
+async function onWalletConnected() {
+  // Update UI
+  connectBtn.style.display = 'none';
+  walletInfo.style.display = 'flex';
+  walletAddress.textContent = `${connectedWallet.slice(0, 4)}...${connectedWallet.slice(-4)}`;
+  
+  badgeStatus.textContent = 'checking holdings...';
+  
+  // Check token balance
+  const balance = await getTokenBalance(connectedWallet);
+  
+  if (balance > 0) {
+    // User holds tokens!
+    verificationBadge.classList.add('verified');
+    verificationBadge.classList.remove('not-holder');
+    badgeIcon.textContent = '✓';
+    badgeStatus.textContent = 'verified drifter';
+    
+    // Show balance and tier
+    holderDetails.style.display = 'flex';
+    holderBalance.textContent = `${formatTokenBalance(balance)} $ZEPHY`;
+    
+    const tier = getTier(balance);
+    holderTier.className = `holder-tier ${tier.name}`;
+    holderTier.innerHTML = `<span class="tier-icon">${tier.icon}</span> ${tier.label}`;
+    
+    // Celebration particles
+    celebrateVerification();
+    
+  } else {
+    // Not holding
+    verificationBadge.classList.add('not-holder');
+    verificationBadge.classList.remove('verified');
+    badgeIcon.textContent = '✗';
+    badgeStatus.textContent = 'not holding $ZEPHY';
+    holderDetails.style.display = 'none';
+  }
+  
+  // Save to localStorage
+  localStorage.setItem('zephy_connected_wallet', connectedWallet);
+}
+
+// Get token balance via RPC
+async function getTokenBalance(walletAddress) {
+  try {
+    const response = await fetch(HELIUS_RPC, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'getTokenAccountsByOwner',
+        params: [
+          walletAddress,
+          { mint: ZEPHY_TOKEN_MINT },
+          { encoding: 'jsonParsed' }
+        ]
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.result?.value?.length > 0) {
+      const tokenAccount = data.result.value[0];
+      const amount = tokenAccount.account.data.parsed.info.tokenAmount;
+      return parseFloat(amount.uiAmount) || 0;
+    }
+    
+    return 0;
+  } catch (err) {
+    console.error('Failed to fetch token balance:', err);
+    return 0;
+  }
+}
+
+// Format token balance
+function formatTokenBalance(amount) {
+  if (amount >= 1000000) {
+    return (amount / 1000000).toFixed(2) + 'M';
+  } else if (amount >= 1000) {
+    return (amount / 1000).toFixed(1) + 'K';
+  }
+  return amount.toLocaleString(undefined, { maximumFractionDigits: 2 });
+}
+
+// Get tier based on balance
+function getTier(balance) {
+  for (const tier of TIERS) {
+    if (balance >= tier.min) {
+      return tier;
+    }
+  }
+  return TIERS[TIERS.length - 1];
+}
+
+// Celebration effect for verified holders
+function celebrateVerification() {
+  const badge = verificationBadge;
+  const rect = badge.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+  
+  const celebration = document.getElementById('celebration');
+  
+  for (let i = 0; i < 20; i++) {
+    const particle = document.createElement('div');
+    particle.className = 'celebration-particle';
+    
+    const angle = (Math.PI * 2 * i) / 20 + Math.random() * 0.3;
+    const distance = 60 + Math.random() * 80;
+    const tx = Math.cos(angle) * distance;
+    const ty = Math.sin(angle) * distance;
+    
+    particle.style.cssText = `
+      left: ${centerX}px;
+      top: ${centerY}px;
+      background: hsl(${140 + Math.random() * 40}, 60%, 65%);
+      box-shadow: 0 0 8px hsl(${140 + Math.random() * 40}, 60%, 55%);
+      --tx: ${tx}px;
+      --ty: ${ty}px;
+    `;
+    
+    celebration.appendChild(particle);
+    setTimeout(() => particle.remove(), 1800);
+  }
+}
+
+// Disconnect wallet
+function disconnectWallet() {
+  if (walletProvider?.disconnect) {
+    walletProvider.disconnect();
+  }
+  
+  connectedWallet = null;
+  walletProvider = null;
+  localStorage.removeItem('zephy_connected_wallet');
+  
+  resetUI();
+}
+
+// Reset UI to initial state
+function resetUI() {
+  connectBtn.style.display = 'inline-block';
+  connectBtn.classList.remove('connecting');
+  connectBtn.querySelector('.btn-text').textContent = 'connect wallet';
+  
+  walletInfo.style.display = 'none';
+  holderDetails.style.display = 'none';
+  
+  verificationBadge.classList.remove('verified', 'not-holder');
+  badgeIcon.textContent = '🌬️';
+  badgeStatus.textContent = 'prove you drift';
+}
+
+// Event listeners
+connectBtn?.addEventListener('click', openModal);
+modalClose?.addEventListener('click', closeModal);
+disconnectBtn?.addEventListener('click', disconnectWallet);
+
+walletModal?.addEventListener('click', (e) => {
+  if (e.target === walletModal) closeModal();
+});
+
+walletOptions.forEach(option => {
+  option.addEventListener('click', () => {
+    const walletType = option.dataset.wallet;
+    connectWallet(walletType);
+  });
+});
+
+// Auto-reconnect on page load
+async function autoReconnect() {
+  const savedWallet = localStorage.getItem('zephy_connected_wallet');
+  if (!savedWallet) return;
+  
+  // Try to reconnect silently
+  let provider = null;
+  
+  if (window.solana?.isPhantom && window.solana.isConnected) {
+    provider = window.solana;
+  } else if (window.solflare?.isSolflare && window.solflare.isConnected) {
+    provider = window.solflare;
+  }
+  
+  if (provider) {
+    try {
+      const resp = await provider.connect({ onlyIfTrusted: true });
+      connectedWallet = resp.publicKey.toString();
+      walletProvider = provider;
+      onWalletConnected();
+    } catch (e) {
+      // Silent fail - user needs to reconnect manually
+      localStorage.removeItem('zephy_connected_wallet');
+    }
+  }
+}
+
+// Initialize verification system
+setTimeout(autoReconnect, 1500);
+
+// === TELEGRAM VERIFICATION CODE SYSTEM ===
+const verificationCodeSection = document.getElementById('verification-code-section');
+const getCodeBtn = document.getElementById('get-code-btn');
+const codeDisplay = document.getElementById('code-display');
+const codeValue = document.getElementById('code-value');
+const copyCodeBtn = document.getElementById('copy-code-btn');
+
+// Generate verification code from wallet address
+function generateVerificationCode(wallet) {
+  // Simple hash: take parts of wallet + timestamp day
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const walletPart = wallet.slice(0, 6) + wallet.slice(-4);
+  
+  // Create a simple hash
+  let hash = 0;
+  const str = walletPart + today + 'zephy';
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  
+  // Convert to alphanumeric code
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Avoid confusing chars
+  let code = 'ZPH-';
+  hash = Math.abs(hash);
+  for (let i = 0; i < 6; i++) {
+    code += chars[hash % chars.length];
+    hash = Math.floor(hash / chars.length) + (hash % 7);
+  }
+  
+  return code;
+}
+
+// Show verification code section for holders
+function showVerificationCodeSection() {
+  if (verificationCodeSection) {
+    verificationCodeSection.style.display = 'flex';
+  }
+}
+
+// Generate and display code
+function displayVerificationCode() {
+  if (!connectedWallet) return;
+  
+  const code = generateVerificationCode(connectedWallet);
+  codeValue.textContent = code;
+  
+  getCodeBtn.style.display = 'none';
+  codeDisplay.style.display = 'block';
+  
+  // Store for verification
+  localStorage.setItem('zephy_verification_code', JSON.stringify({
+    code: code,
+    wallet: connectedWallet,
+    generated: new Date().toISOString()
+  }));
+}
+
+// Copy code to clipboard
+function copyCode() {
+  const code = codeValue.textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    copyCodeBtn.textContent = 'copied!';
+    copyCodeBtn.classList.add('copied');
+    setTimeout(() => {
+      copyCodeBtn.textContent = 'copy';
+      copyCodeBtn.classList.remove('copied');
+    }, 2000);
+  });
+}
+
+// Event listeners for verification code
+getCodeBtn?.addEventListener('click', displayVerificationCode);
+copyCodeBtn?.addEventListener('click', copyCode);
+
+// Modify onWalletConnected to show code section for holders
+const originalOnWalletConnected = onWalletConnected;
+onWalletConnected = async function() {
+  await originalOnWalletConnected();
+  
+  // If user is a holder, show the verification code section
+  const balance = await getTokenBalance(connectedWallet);
+  if (balance > 0) {
+    showVerificationCodeSection();
+  }
+};
 </script>
 </body>
 </html>
