@@ -924,7 +924,9 @@ canvas#cursor-trail {
   z-index: 9999;
   pointer-events: none;
   opacity: 1;
-  background: rgba(255,0,0,0.1); /* DEBUG - remove after */
+  width: 300px;
+  height: 450px;
+  background: rgba(255,0,0,0.3); /* DEBUG - remove after */
 }
 
 .face-image img {
@@ -1027,10 +1029,10 @@ canvas#cursor-trail {
 
 <!-- Face images framing the content -->
 <div class="face-image face-left">
-  <img src="assets/face-left.png" alt="" loading="lazy">
+  <img src="assets/face-left.png" alt="" width="512" height="768">
 </div>
 <div class="face-image face-right">
-  <img src="assets/face-right.png" alt="" loading="lazy">
+  <img src="assets/face-right.png" alt="" width="512" height="768">
 </div>
 
 <div class="vignette"></div>
