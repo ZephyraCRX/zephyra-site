@@ -921,9 +921,10 @@ canvas#cursor-trail {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 50;
+  z-index: 9999;
   pointer-events: none;
-  opacity: 0.75;
+  opacity: 1;
+  background: rgba(255,0,0,0.1); /* DEBUG - remove after */
 }
 
 .face-image img {
@@ -1012,8 +1013,8 @@ canvas#cursor-trail {
   .orb { opacity: 0.25; }
   .milestone-labels { font-size: 0.55rem; }
   
-  /* Hide faces on mobile - too cramped */
-  .face-image { display: none; }
+  /* Show faces on mobile too for now */
+  .face-image { opacity: 0.4; }
 }
 </style>
 </head>
