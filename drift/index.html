@@ -921,16 +921,14 @@ canvas#cursor-trail {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 9999;
+  z-index: 50;
   pointer-events: none;
-  opacity: 1;
-  width: 300px;
-  height: 450px;
-  background: rgba(255,0,0,0.3); /* DEBUG - remove after */
+  opacity: 0.8;
 }
 
 .face-image img {
-  max-height: 70vh;
+  display: block;
+  height: 70vh;
   width: auto;
   object-fit: contain;
 }
@@ -941,7 +939,11 @@ canvas#cursor-trail {
 }
 
 .face-left img {
-  margin-left: -15%;
+  mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%);
+}
+
+.face-left img {
   filter: brightness(1.0) contrast(1.2) saturate(0.9);
 }
 
@@ -951,7 +953,11 @@ canvas#cursor-trail {
 }
 
 .face-right img {
-  margin-right: -15%;
+  mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.5) 60%, rgba(0,0,0,0) 100%);
+}
+
+.face-right img {
   filter: brightness(1.0) contrast(1.2) saturate(0.85);
 }
 
