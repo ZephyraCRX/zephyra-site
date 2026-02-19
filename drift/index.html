@@ -916,12 +916,105 @@ canvas#cursor-trail {
   body { cursor: auto; }
 }
 
+/* FACE IMAGES - Left and Right */
+.face-image {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0;
+  animation: faceEmerge 3s ease-out 1.5s forwards;
+}
+
+.face-image img {
+  max-height: 70vh;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Left face - half emerging from darkness */
+.face-left {
+  left: 0;
+  mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 40%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 40%, rgba(0,0,0,0) 100%);
+}
+
+.face-left img {
+  margin-left: -15%;
+  filter: brightness(0.7) contrast(1.1) saturate(0.9);
+}
+
+/* Right face - direct gaze, slight smirk */
+.face-right {
+  right: 0;
+  mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 40%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: linear-gradient(to left, rgba(0,0,0,1) 0%, rgba(0,0,0,0.7) 40%, rgba(0,0,0,0) 100%);
+}
+
+.face-right img {
+  margin-right: -15%;
+  filter: brightness(0.75) contrast(1.1) saturate(0.85);
+}
+
+@keyframes faceEmerge {
+  0% { 
+    opacity: 0; 
+    filter: blur(20px);
+  }
+  60% { 
+    opacity: 0.25; 
+    filter: blur(5px);
+  }
+  100% { 
+    opacity: 0.35; 
+    filter: blur(0);
+  }
+}
+
+/* Subtle pulse on faces */
+.face-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(100, 80, 180, 0.1) 0%, transparent 70%);
+  animation: facePulse 6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes facePulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@media (max-width: 1200px) {
+  .face-image img {
+    max-height: 50vh;
+  }
+  .face-left img { margin-left: -25%; }
+  .face-right img { margin-right: -25%; }
+}
+
+@media (max-width: 900px) {
+  .face-image {
+    opacity: 0.2 !important;
+  }
+  .face-image img {
+    max-height: 40vh;
+  }
+  .face-left img { margin-left: -35%; }
+  .face-right img { margin-right: -35%; }
+}
+
 @media (max-width: 500px) {
   .stats-row { gap: 15px; }
   .stat-item { padding: 8px 12px; }
   .buy-button { padding: 14px 35px; }
   .orb { opacity: 0.25; }
   .milestone-labels { font-size: 0.55rem; }
+  
+  /* Hide faces on mobile - too cramped */
+  .face-image { display: none; }
 }
 </style>
 </head>
@@ -931,6 +1024,15 @@ canvas#cursor-trail {
 <div class="orb orb-1"></div>
 <div class="orb orb-2"></div>
 <div class="orb orb-3"></div>
+
+<!-- Face images framing the content -->
+<div class="face-image face-left">
+  <img src="assets/face-left.png" alt="" loading="lazy">
+</div>
+<div class="face-image face-right">
+  <img src="assets/face-right.png" alt="" loading="lazy">
+</div>
+
 <div class="vignette"></div>
 <canvas id="particles"></canvas>
 <canvas id="cursor-trail"></canvas>
