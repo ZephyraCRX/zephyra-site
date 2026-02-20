@@ -19,9 +19,6 @@ html, body {
 body {
   color: #e0e0e0;
   font-family: 'JetBrains Mono', monospace;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   cursor: none;
 }
 
@@ -136,286 +133,770 @@ canvas#cursor-trail {
   50% { transform: scale(1.8); opacity: 0.2; }
 }
 
-.content {
-  position: relative;
-  z-index: 10;
-  text-align: center;
-  padding: 40px;
-  max-width: 650px;
-}
-
-/* central glow */
-.central-glow {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 500px;
-  height: 300px;
-  background: radial-gradient(ellipse at center, rgba(130, 100, 200, 0.2) 0%, rgba(100, 140, 200, 0.1) 30%, transparent 70%);
-  filter: blur(40px);
-  animation: centralPulse 4s ease-in-out infinite;
+/* noise overlay */
+.noise {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
   pointer-events: none;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
 }
 
-@keyframes centralPulse {
-  0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-}
-
-.whisper {
-  font-size: clamp(0.9rem, 2vw, 1.2rem);
-  font-weight: 300;
-  color: rgba(180, 175, 210, 0.7);
-  letter-spacing: 0.12em;
-  text-transform: lowercase;
+/* ====== STICKY HEADER ====== */
+.sticky-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: rgba(10, 10, 18, 0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(120, 100, 170, 0.15);
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
   opacity: 0;
-  animation: emerge 2s ease-out 0.3s forwards;
-  text-shadow: 0 0 20px rgba(140, 130, 200, 0.3);
+  animation: headerSlideIn 0.8s ease-out 0.3s forwards;
 }
 
-@keyframes emerge {
-  0% { opacity: 0; transform: translateY(15px); filter: blur(8px); }
-  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+@keyframes headerSlideIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* TOKEN NAME with aura */
-.token-container {
-  position: relative;
-  margin: 25px 0;
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
-.token-aura {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 300px;
-  height: 100px;
-  background: radial-gradient(ellipse at center, rgba(160, 120, 220, 0.3) 0%, transparent 70%);
-  filter: blur(25px);
-  animation: auraPulse 3s ease-in-out infinite;
-}
-
-@keyframes auraPulse {
-  0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
-}
-
-.token-reveal {
-  position: relative;
-  font-size: clamp(2.5rem, 6vw, 4rem);
+.header-token {
+  font-size: 1.3rem;
   font-weight: 400;
   color: rgba(200, 170, 255, 0.95);
-  letter-spacing: 0.25em;
-  opacity: 0;
-  animation: tokenEmerge 2.5s ease-out 0.8s forwards;
-  text-shadow: 0 0 50px rgba(160, 130, 230, 0.5), 0 0 100px rgba(140, 110, 200, 0.3);
+  letter-spacing: 0.15em;
+  text-shadow: 0 0 30px rgba(160, 130, 230, 0.4);
 }
 
-@keyframes tokenEmerge {
-  0% { opacity: 0; transform: scale(0.85); filter: blur(15px); }
-  60% { opacity: 0.8; transform: scale(1.02); }
-  100% { opacity: 1; transform: scale(1); filter: blur(0); }
-}
-
-/* LIVE PRICE */
-.price-container {
-  margin: 20px 0;
-  opacity: 0;
-  animation: emerge 2s ease-out 1.3s forwards;
-}
-
-.live-price {
-  font-size: clamp(1.4rem, 3.5vw, 2rem);
-  font-weight: 300;
+.header-price {
+  font-size: 1rem;
   color: rgba(160, 220, 180, 0.85);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   transition: all 0.4s ease;
-  text-shadow: 0 0 30px rgba(130, 200, 160, 0.4);
+  text-shadow: 0 0 20px rgba(130, 200, 160, 0.3);
 }
 
-.live-price.flash-up {
+.header-price.flash-up {
   color: rgba(100, 255, 150, 1);
-  text-shadow: 0 0 40px rgba(80, 230, 130, 0.7), 0 0 80px rgba(80, 230, 130, 0.4);
-  transform: scale(1.05);
+  text-shadow: 0 0 30px rgba(80, 230, 130, 0.6);
 }
 
-.live-price.flash-down {
+.header-price.flash-down {
   color: rgba(255, 130, 150, 1);
-  text-shadow: 0 0 40px rgba(230, 100, 120, 0.7), 0 0 80px rgba(230, 100, 120, 0.4);
-  transform: scale(0.98);
+  text-shadow: 0 0 30px rgba(230, 100, 120, 0.6);
 }
 
-/* ATMOSPHERIC LOADING STATE */
-.price-loading {
-  color: transparent;
-  background: linear-gradient(90deg, 
-    rgba(130, 120, 180, 0.3) 0%, 
-    rgba(160, 140, 200, 0.6) 50%, 
-    rgba(130, 120, 180, 0.3) 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  animation: voidShimmer 2s ease-in-out infinite, voidBreathe 3s ease-in-out infinite;
+.header-price.price-loading {
+  color: rgba(140, 130, 190, 0.5);
+  animation: voidBreathe 2s ease-in-out infinite;
 }
 
-@keyframes voidShimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-@keyframes voidBreathe {
-  0%, 100% { 
-    opacity: 0.4;
-    filter: blur(1px);
-    transform: scale(0.98);
-  }
-  50% { 
-    opacity: 0.8;
-    filter: blur(0);
-    transform: scale(1.02);
-  }
-}
-
-/* Ghostly loading text */
-.void-loading {
-  position: relative;
-  display: inline-block;
-}
-
-.void-loading::before {
-  content: '';
-  position: absolute;
-  inset: -15px -25px;
-  background: radial-gradient(ellipse at center, rgba(140, 120, 200, 0.15) 0%, transparent 70%);
-  filter: blur(10px);
-  animation: loadingGlow 2.5s ease-in-out infinite;
-  pointer-events: none;
-}
-
-@keyframes loadingGlow {
-  0%, 100% { 
-    opacity: 0.4;
-    transform: scale(0.95);
-  }
-  50% { 
-    opacity: 1;
-    transform: scale(1.1);
-  }
-}
-
-/* Loading particles container */
-.loading-particles {
-  position: absolute;
-  inset: -20px;
-  pointer-events: none;
-  overflow: visible;
-}
-
-.loading-particle {
-  position: absolute;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: rgba(160, 140, 220, 0.6);
-  box-shadow: 0 0 8px rgba(160, 140, 220, 0.4);
-  animation: loadingParticleFloat 3s ease-in-out infinite;
-}
-
-.loading-particle:nth-child(1) {
-  left: 20%;
-  animation-delay: 0s;
-}
-
-.loading-particle:nth-child(2) {
-  left: 50%;
-  animation-delay: 0.5s;
-}
-
-.loading-particle:nth-child(3) {
-  left: 80%;
-  animation-delay: 1s;
-}
-
-@keyframes loadingParticleFloat {
-  0%, 100% {
-    transform: translateY(10px) scale(0.5);
-    opacity: 0;
-  }
-  30% {
-    opacity: 0.8;
-    transform: translateY(0) scale(1);
-  }
-  70% {
-    opacity: 0.8;
-    transform: translateY(-5px) scale(1);
-  }
-  100% {
-    transform: translateY(-15px) scale(0.3);
-    opacity: 0;
-  }
-}
-
-/* HOLDER COUNTER */
-.holder-counter {
-  margin: 15px 0;
-  opacity: 0;
-  animation: emerge 2s ease-out 1.4s forwards;
-}
-
-.holder-count {
-  font-size: clamp(0.9rem, 2vw, 1.1rem);
-  font-weight: 300;
-  color: rgba(160, 140, 200, 0.7);
-  letter-spacing: 0.12em;
-  transition: transform 0.3s ease;
-  text-shadow: 0 0 15px rgba(140, 120, 200, 0.3);
-}
-
-.holder-count.pulse {
-  animation: holderPulse 0.4s ease-out;
-}
-
-.holder-count.holder-loading {
-  color: transparent;
-  background: linear-gradient(90deg, 
-    rgba(140, 130, 190, 0.2) 0%, 
-    rgba(160, 140, 200, 0.5) 50%, 
-    rgba(140, 130, 190, 0.2) 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  animation: voidShimmer 2.5s ease-in-out infinite, voidBreathe 4s ease-in-out infinite;
-  font-style: italic;
-}
-
-@keyframes holderPulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.08); color: rgba(200, 180, 240, 0.9); }
-  100% { transform: scale(1); }
-}
-
-/* HOLDER VERIFICATION SECTION */
-.verification-section {
-  margin: 25px 0;
-  opacity: 0;
-  animation: emerge 2s ease-out 1.2s forwards;
+.header-center {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: rgba(160, 140, 200, 0.7);
+}
+
+.header-drifters {
+  color: rgba(180, 170, 220, 0.9);
+  font-weight: 400;
+}
+
+.header-right {
+  display: flex;
   align-items: center;
   gap: 15px;
 }
 
+.header-enter-btn {
+  padding: 8px 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  color: rgba(200, 180, 255, 0.9);
+  background: linear-gradient(135deg, rgba(130, 100, 200, 0.25) 0%, rgba(100, 80, 180, 0.15) 100%);
+  border: 1px solid rgba(160, 130, 220, 0.4);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.header-enter-btn:hover {
+  color: rgba(230, 210, 255, 1);
+  border-color: rgba(180, 150, 240, 0.6);
+  box-shadow: 0 0 25px rgba(130, 100, 200, 0.3);
+  transform: translateY(-1px);
+}
+
+/* ====== MILESTONE BAR (below header) ====== */
+.milestone-header {
+  position: fixed;
+  top: 52px;
+  left: 0;
+  right: 0;
+  z-index: 49;
+  background: rgba(10, 10, 18, 0.75);
+  backdrop-filter: blur(15px);
+  border-bottom: 1px solid rgba(120, 100, 170, 0.1);
+  padding: 12px 30px;
+  opacity: 0;
+  animation: headerSlideIn 0.8s ease-out 0.5s forwards;
+}
+
+.milestone-bar {
+  position: relative;
+  height: 4px;
+  background: rgba(100, 90, 140, 0.2);
+  border-radius: 2px;
+  margin: 0 auto;
+  max-width: 600px;
+  overflow: visible;
+}
+
+.milestone-progress {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, rgba(140, 120, 200, 0.5), rgba(180, 150, 240, 0.7));
+  border-radius: 2px;
+  transition: width 0.8s ease-out;
+  box-shadow: 0 0 15px rgba(160, 130, 220, 0.5);
+}
+
+.milestone-dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(100, 110, 140, 0.3);
+  border: 1px solid rgba(120, 130, 160, 0.3);
+  transition: all 0.4s ease;
+}
+
+.milestone-dot.reached {
+  background: rgba(140, 200, 170, 0.8);
+  border-color: rgba(140, 200, 170, 0.6);
+  box-shadow: 0 0 18px rgba(140, 200, 170, 0.5);
+}
+
+.milestone-dot.current {
+  background: rgba(200, 170, 255, 0.9);
+  border-color: rgba(200, 170, 255, 0.7);
+  box-shadow: 0 0 25px rgba(180, 150, 240, 0.6);
+  animation: currentPulse 2s ease-in-out infinite;
+}
+
+@keyframes currentPulse {
+  0%, 100% { box-shadow: 0 0 18px rgba(180, 150, 240, 0.5); }
+  50% { box-shadow: 0 0 30px rgba(200, 170, 255, 0.8); }
+}
+
+.milestone-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.milestone-label {
+  font-size: 0.6rem;
+  color: rgba(120, 130, 160, 0.5);
+  letter-spacing: 0.05em;
+  transition: all 0.3s;
+}
+
+.milestone-label.reached {
+  color: rgba(140, 200, 170, 0.7);
+  text-shadow: 0 0 10px rgba(140, 200, 170, 0.3);
+}
+
+.milestone-label.current {
+  color: rgba(200, 170, 255, 0.9);
+  text-shadow: 0 0 12px rgba(180, 150, 240, 0.5);
+}
+
+.milestone-current-text {
+  font-size: 0.7rem;
+  color: rgba(150, 160, 190, 0.6);
+  text-align: center;
+  margin-top: 6px;
+  letter-spacing: 0.06em;
+}
+
+.milestone-current-text.milestone-loading {
+  color: transparent;
+  background: linear-gradient(90deg, rgba(140, 130, 190, 0.15) 0%, rgba(160, 140, 200, 0.4) 50%, rgba(140, 130, 190, 0.15) 100%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: voidShimmer 3s ease-in-out infinite;
+}
+
+/* ====== TAB NAVIGATION ====== */
+.tab-nav {
+  position: fixed;
+  top: 110px;
+  left: 0;
+  right: 0;
+  z-index: 48;
+  background: rgba(10, 10, 18, 0.7);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(120, 100, 170, 0.1);
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 15px;
+  opacity: 0;
+  animation: headerSlideIn 0.8s ease-out 0.7s forwards;
+}
+
+.tab-btn {
+  position: relative;
+  padding: 10px 22px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.1em;
+  color: rgba(160, 150, 200, 0.6);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.tab-btn::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 80%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(180, 150, 240, 0.8), transparent);
+  transition: transform 0.3s ease;
+}
+
+.tab-btn:hover {
+  color: rgba(200, 180, 240, 0.9);
+  background: rgba(120, 100, 170, 0.1);
+}
+
+.tab-btn.active {
+  color: rgba(220, 200, 255, 1);
+  background: rgba(130, 100, 180, 0.15);
+  text-shadow: 0 0 15px rgba(180, 150, 240, 0.4);
+}
+
+.tab-btn.active::before {
+  transform: translateX(-50%) scaleX(1);
+}
+
+/* Tab indicator animation */
+.tab-indicator {
+  position: absolute;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(140, 120, 200, 0.3), rgba(180, 150, 240, 0.8), rgba(140, 120, 200, 0.3));
+  border-radius: 2px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 15px rgba(180, 150, 240, 0.5);
+}
+
+/* ====== MAIN CONTENT AREA ====== */
+.main-content {
+  position: relative;
+  z-index: 10;
+  padding-top: 165px;
+  min-height: 100vh;
+}
+
+/* ====== TAB PANELS ====== */
+.tab-panel {
+  display: none;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  padding: 25px 20px 80px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.tab-panel.active {
+  display: block;
+}
+
+.tab-panel.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ====== OVERVIEW TAB ====== */
+.overview-intro {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.whisper {
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+  font-weight: 300;
+  color: rgba(180, 175, 210, 0.7);
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+  text-shadow: 0 0 20px rgba(140, 130, 200, 0.3);
+  margin-bottom: 15px;
+}
+
+.ca-text {
+  font-size: 0.7rem;
+  color: rgba(140, 150, 180, 0.5);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  word-break: break-all;
+  padding: 8px 15px;
+  border-radius: 4px;
+  background: rgba(100, 90, 140, 0.1);
+  display: inline-block;
+}
+
+.ca-text:hover {
+  color: rgba(180, 170, 220, 0.9);
+  background: rgba(120, 100, 160, 0.2);
+}
+
+/* Stats Row */
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin: 25px 0;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 12px 20px;
+  border-radius: 10px;
+  background: rgba(100, 80, 150, 0.1);
+  border: 1px solid rgba(120, 100, 170, 0.15);
+  transition: all 0.3s ease;
+  min-width: 100px;
+}
+
+.stat-item:hover {
+  background: rgba(120, 100, 170, 0.18);
+  border-color: rgba(150, 130, 200, 0.3);
+  transform: translateY(-2px);
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  color: rgba(140, 150, 180, 0.6);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: clamp(0.95rem, 2.5vw, 1.2rem);
+  color: rgba(180, 175, 210, 0.85);
+  font-weight: 400;
+  text-shadow: 0 0 15px rgba(140, 130, 200, 0.2);
+}
+
+/* Activity Feed */
+.activity-feed {
+  margin: 30px 0;
+}
+
+.section-title {
+  font-size: 0.7rem;
+  color: rgba(140, 150, 180, 0.5);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.activity-list {
+  max-height: 200px;
+  overflow: hidden;
+  position: relative;
+}
+
+.activity-list::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background: linear-gradient(to top, rgba(5, 5, 8, 1) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.activity-item {
+  font-size: 0.8rem;
+  color: rgba(150, 160, 190, 0.6);
+  letter-spacing: 0.05em;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background: rgba(80, 70, 130, 0.08);
+  border-radius: 6px;
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: activitySlideIn 0.6s ease-out forwards;
+}
+
+@keyframes activitySlideIn {
+  0% { opacity: 0; transform: translateY(-10px); filter: blur(4px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+.activity-item .wallet {
+  color: rgba(180, 160, 220, 0.7);
+}
+
+.activity-item .action {
+  color: rgba(140, 150, 180, 0.5);
+}
+
+.activity-item .amount {
+  color: rgba(140, 200, 170, 0.7);
+}
+
+/* Section Divider */
+.section-divider {
+  width: 60px;
+  height: 1px;
+  margin: 30px auto;
+  background: linear-gradient(90deg, transparent, rgba(140, 120, 200, 0.3), transparent);
+}
+
+/* ====== ACTIVITY TAB ====== */
+.activity-expanded .activity-list {
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.activity-expanded .activity-list::after {
+  display: none;
+}
+
+.activity-expanded .activity-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.activity-expanded .activity-list::-webkit-scrollbar-track {
+  background: rgba(80, 70, 120, 0.1);
+}
+
+.activity-expanded .activity-list::-webkit-scrollbar-thumb {
+  background: rgba(120, 100, 170, 0.3);
+  border-radius: 2px;
+}
+
+/* Holder Graph */
+.holder-graph-section {
+  margin: 35px 0;
+}
+
+.holder-graph-container {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  padding: 20px;
+  border-radius: 12px;
+  background: rgba(20, 15, 35, 0.5);
+  border: 1px solid rgba(120, 100, 170, 0.15);
+}
+
+.holder-graph-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* ====== CHART TAB ====== */
+.chart-fullscreen {
+  margin: 0 -20px;
+}
+
+.chart-embed-container {
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(20, 15, 35, 0.6);
+  border: 1px solid rgba(120, 100, 170, 0.2);
+  box-shadow: 0 0 40px rgba(100, 80, 160, 0.15);
+}
+
+.chart-embed-container iframe {
+  width: 100%;
+  height: 500px;
+  border: none;
+}
+
+@media (min-height: 700px) {
+  .chart-embed-container iframe {
+    height: 60vh;
+  }
+}
+
+/* ====== CLAIMS TAB ====== */
+.claims-section {
+  margin: 20px 0;
+}
+
+.claims-title {
+  font-size: 0.8rem;
+  color: rgba(140, 200, 170, 0.7);
+  letter-spacing: 0.15em;
+  text-transform: lowercase;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.claims-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.claims-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.claims-list::-webkit-scrollbar-track {
+  background: rgba(80, 70, 120, 0.1);
+  border-radius: 2px;
+}
+
+.claims-list::-webkit-scrollbar-thumb {
+  background: rgba(120, 100, 170, 0.3);
+  border-radius: 2px;
+}
+
+.claim-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: rgba(80, 70, 130, 0.12);
+  border: 1px solid rgba(120, 100, 170, 0.15);
+  border-radius: 10px;
+  font-size: 0.8rem;
+  transition: all 0.3s ease;
+}
+
+.claim-item:hover {
+  background: rgba(100, 90, 150, 0.2);
+  border-color: rgba(140, 120, 190, 0.25);
+}
+
+.claim-date {
+  color: rgba(140, 150, 180, 0.5);
+  font-size: 0.7rem;
+}
+
+.claim-amount {
+  color: rgba(140, 200, 170, 0.8);
+  font-weight: 400;
+}
+
+.claim-action {
+  color: rgba(180, 160, 220, 0.7);
+  font-size: 0.75rem;
+  text-transform: lowercase;
+}
+
+.claim-action.buyback { color: rgba(140, 200, 170, 0.8); }
+.claim-action.burn { color: rgba(220, 140, 140, 0.8); }
+.claim-action.liquidity { color: rgba(140, 180, 220, 0.8); }
+.claim-action.rewards { color: rgba(220, 200, 140, 0.8); }
+
+.claims-totals {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(120, 100, 170, 0.15);
+}
+
+.claims-total-item {
+  text-align: center;
+}
+
+.claims-total-label {
+  font-size: 0.65rem;
+  color: rgba(140, 150, 180, 0.5);
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+}
+
+.claims-total-value {
+  font-size: 1rem;
+  color: rgba(140, 200, 170, 0.85);
+  margin-top: 5px;
+}
+
+/* ====== COMMUNITY TAB ====== */
+.community-section {
+  text-align: center;
+}
+
+.tweets-container {
+  position: relative;
+  width: 100%;
+  max-width: 450px;
+  max-height: 400px;
+  margin: 0 auto 30px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(20, 15, 35, 0.5);
+  border: 1px solid rgba(120, 100, 170, 0.15);
+}
+
+.tweets-loading {
+  padding: 50px 20px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: rgba(140, 150, 180, 0.5);
+  letter-spacing: 0.1em;
+  animation: voidBreathe 3s ease-in-out infinite;
+}
+
+.social-links {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.social-link {
+  color: rgba(160, 150, 200, 0.7);
+  font-size: 0.85rem;
+  text-decoration: none;
+  padding: 12px 25px;
+  border-radius: 6px;
+  background: rgba(100, 90, 140, 0.12);
+  border: 1px solid rgba(120, 110, 160, 0.2);
+  transition: all 0.3s ease;
+  letter-spacing: 0.08em;
+}
+
+.social-link:hover {
+  color: rgba(200, 180, 240, 1);
+  background: rgba(120, 100, 160, 0.25);
+  border-color: rgba(150, 130, 200, 0.4);
+  transform: translateY(-2px);
+}
+
+/* ====== VERIFICATION MODAL ====== */
+.verification-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 60;
+  padding: 12px 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: rgba(180, 170, 220, 0.9);
+  background: rgba(80, 70, 130, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(140, 120, 200, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.verification-toggle:hover {
+  background: rgba(100, 90, 150, 0.5);
+  border-color: rgba(160, 140, 220, 0.5);
+  transform: translateY(-2px);
+}
+
+.verification-toggle.verified {
+  border-color: rgba(100, 200, 160, 0.5);
+  background: rgba(60, 120, 100, 0.3);
+}
+
+.verification-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 5, 12, 0.92);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.verification-modal.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.verification-content {
+  background: rgba(20, 18, 35, 0.98);
+  border: 1px solid rgba(120, 100, 170, 0.3);
+  border-radius: 16px;
+  padding: 35px;
+  max-width: 380px;
+  width: 90%;
+  box-shadow: 0 0 60px rgba(100, 80, 160, 0.3);
+  transform: translateY(20px) scale(0.95);
+  transition: transform 0.3s ease;
+  text-align: center;
+}
+
+.verification-modal.active .verification-content {
+  transform: translateY(0) scale(1);
+}
+
 .verification-badge {
   position: relative;
-  padding: 15px 30px;
+  padding: 18px 30px;
   border-radius: 12px;
   background: rgba(20, 15, 35, 0.6);
   border: 1px solid rgba(120, 100, 170, 0.2);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 12px;
+  margin-bottom: 20px;
   transition: all 0.4s ease;
 }
 
@@ -446,7 +927,7 @@ canvas#cursor-trail {
 }
 
 .badge-icon {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   animation: iconFloat 3s ease-in-out infinite;
 }
 
@@ -456,7 +937,7 @@ canvas#cursor-trail {
 }
 
 .badge-status {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   color: rgba(180, 175, 210, 0.8);
   letter-spacing: 0.08em;
   transition: all 0.4s ease;
@@ -473,7 +954,7 @@ canvas#cursor-trail {
 
 .connect-wallet-btn {
   position: relative;
-  padding: 12px 35px;
+  padding: 14px 40px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.85rem;
   font-weight: 400;
@@ -485,6 +966,7 @@ canvas#cursor-trail {
   cursor: pointer;
   overflow: hidden;
   transition: all 0.4s ease;
+  margin: 15px 0;
 }
 
 .connect-wallet-btn:hover {
@@ -514,22 +996,20 @@ canvas#cursor-trail {
   left: 100%;
 }
 
-.connect-wallet-btn.connecting .btn-text {
-  animation: voidBreathe 2s ease-in-out infinite;
-}
-
 .wallet-info {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 12px;
-  padding: 8px 15px;
+  padding: 10px 18px;
   background: rgba(80, 70, 120, 0.15);
   border-radius: 6px;
   border: 1px solid rgba(120, 100, 160, 0.2);
+  margin: 15px 0;
 }
 
 .wallet-address {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: rgba(160, 150, 200, 0.7);
   letter-spacing: 0.05em;
 }
@@ -537,7 +1017,7 @@ canvas#cursor-trail {
 .disconnect-btn {
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.7rem;
-  padding: 4px 10px;
+  padding: 5px 12px;
   color: rgba(180, 140, 160, 0.7);
   background: transparent;
   border: 1px solid rgba(160, 120, 140, 0.3);
@@ -557,22 +1037,22 @@ canvas#cursor-trail {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 12px 20px;
+  padding: 15px 25px;
   background: rgba(60, 140, 100, 0.1);
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid rgba(100, 180, 140, 0.2);
-  animation: emerge 0.6s ease-out forwards;
+  margin: 15px 0;
 }
 
 .holder-balance {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: rgba(140, 220, 180, 0.9);
   letter-spacing: 0.06em;
   text-shadow: 0 0 20px rgba(100, 200, 150, 0.3);
 }
 
 .holder-tier {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   color: rgba(180, 220, 200, 0.7);
   letter-spacing: 0.1em;
   display: flex;
@@ -581,16 +1061,15 @@ canvas#cursor-trail {
 }
 
 .holder-tier .tier-icon {
-  font-size: 1rem;
+  font-size: 1.1rem;
 }
 
-/* Tier colors */
 .holder-tier.whale { color: rgba(160, 200, 255, 0.95); text-shadow: 0 0 15px rgba(120, 180, 255, 0.4); }
 .holder-tier.dolphin { color: rgba(160, 220, 200, 0.9); text-shadow: 0 0 15px rgba(100, 200, 180, 0.4); }
 .holder-tier.fish { color: rgba(180, 200, 180, 0.85); }
 .holder-tier.shrimp { color: rgba(180, 170, 200, 0.75); }
 
-/* Verification Code Section */
+/* Verification Code */
 .verification-code-section {
   margin-top: 20px;
   display: flex;
@@ -609,8 +1088,6 @@ canvas#cursor-trail {
   font-family: inherit;
   font-size: 0.85rem;
   letter-spacing: 0.05em;
-  position: relative;
-  overflow: hidden;
   transition: all 0.3s ease;
 }
 
@@ -626,18 +1103,18 @@ canvas#cursor-trail {
   border-radius: 12px;
   padding: 20px;
   text-align: center;
-  min-width: 280px;
+  min-width: 250px;
 }
 
 .code-label {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: rgba(160, 180, 200, 0.6);
   margin-bottom: 10px;
   letter-spacing: 0.05em;
 }
 
 .code-value {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 400;
   color: rgba(140, 220, 180, 0.95);
   letter-spacing: 0.15em;
@@ -673,7 +1150,7 @@ canvas#cursor-trail {
 
 .code-instructions {
   margin-top: 15px;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: rgba(160, 180, 200, 0.5);
 }
 
@@ -686,11 +1163,29 @@ canvas#cursor-trail {
   text-decoration: underline;
 }
 
+.modal-close-btn {
+  margin-top: 20px;
+  padding: 10px 30px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.8rem;
+  color: rgba(150, 140, 180, 0.6);
+  background: transparent;
+  border: 1px solid rgba(120, 100, 150, 0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-close-btn:hover {
+  color: rgba(180, 170, 220, 0.8);
+  border-color: rgba(150, 130, 180, 0.4);
+}
+
 /* Wallet selector modal */
 .wallet-modal {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: 1001;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -788,109 +1283,7 @@ canvas#cursor-trail {
   border-color: rgba(150, 130, 180, 0.4);
 }
 
-/* MILESTONE TRACKER */
-.milestone-container {
-  margin: 25px 0;
-  opacity: 0;
-  animation: emerge 2s ease-out 1.5s forwards;
-}
-
-.milestone-bar {
-  position: relative;
-  height: 4px;
-  background: rgba(100, 90, 140, 0.2);
-  border-radius: 2px;
-  margin: 0 20px;
-  overflow: visible;
-}
-
-.milestone-progress {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  background: linear-gradient(90deg, rgba(140, 120, 200, 0.5), rgba(180, 150, 240, 0.7));
-  border-radius: 2px;
-  transition: width 0.8s ease-out;
-  box-shadow: 0 0 15px rgba(160, 130, 220, 0.5);
-}
-
-.milestone-dot {
-  position: absolute;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: rgba(100, 110, 140, 0.3);
-  border: 1px solid rgba(120, 130, 160, 0.3);
-  transition: all 0.4s ease;
-}
-
-.milestone-dot.reached {
-  background: rgba(140, 200, 170, 0.8);
-  border-color: rgba(140, 200, 170, 0.6);
-  box-shadow: 0 0 18px rgba(140, 200, 170, 0.5);
-}
-
-.milestone-dot.current {
-  background: rgba(200, 170, 255, 0.9);
-  border-color: rgba(200, 170, 255, 0.7);
-  box-shadow: 0 0 25px rgba(180, 150, 240, 0.6);
-  animation: currentPulse 2s ease-in-out infinite;
-}
-
-@keyframes currentPulse {
-  0%, 100% { box-shadow: 0 0 18px rgba(180, 150, 240, 0.5); }
-  50% { box-shadow: 0 0 30px rgba(200, 170, 255, 0.8); }
-}
-
-.milestone-labels {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 12px;
-  padding: 0 10px;
-}
-
-.milestone-label {
-  font-size: 0.65rem;
-  color: rgba(120, 130, 160, 0.5);
-  letter-spacing: 0.05em;
-  transition: all 0.3s;
-}
-
-.milestone-label.reached {
-  color: rgba(140, 200, 170, 0.7);
-  text-shadow: 0 0 10px rgba(140, 200, 170, 0.3);
-}
-
-.milestone-label.current {
-  color: rgba(200, 170, 255, 0.9);
-  text-shadow: 0 0 12px rgba(180, 150, 240, 0.5);
-}
-
-.milestone-current-text {
-  font-size: 0.75rem;
-  color: rgba(150, 160, 190, 0.6);
-  margin-top: 12px;
-  letter-spacing: 0.08em;
-  text-shadow: 0 0 10px rgba(140, 130, 200, 0.15);
-}
-
-.milestone-current-text.milestone-loading {
-  color: transparent;
-  background: linear-gradient(90deg, 
-    rgba(140, 130, 190, 0.15) 0%, 
-    rgba(160, 140, 200, 0.4) 50%, 
-    rgba(140, 130, 190, 0.15) 100%);
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  animation: voidShimmer 3s ease-in-out infinite, voidBreathe 5s ease-in-out infinite;
-  font-style: italic;
-}
-
-/* MILESTONE CELEBRATION */
+/* Celebration particles */
 .celebration {
   position: fixed;
   inset: 0;
@@ -911,512 +1304,127 @@ canvas#cursor-trail {
   100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
 }
 
-/* ACTIVITY FEED */
-.activity-feed {
-  margin: 25px 0;
-  opacity: 0;
-  animation: emerge 2s ease-out 1.6s forwards;
-}
-
-.activity-title {
-  font-size: 0.65rem;
-  color: rgba(140, 150, 180, 0.5);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 12px;
-}
-
-.activity-list {
-  max-height: 110px;
-  overflow: hidden;
-  position: relative;
-}
-
-.activity-list::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 35px;
-  background: linear-gradient(to top, rgba(5, 5, 8, 1) 0%, transparent 100%);
-  pointer-events: none;
-}
-
-.activity-item {
-  font-size: 0.75rem;
-  color: rgba(150, 160, 190, 0.6);
-  letter-spacing: 0.05em;
-  padding: 5px 0;
-  opacity: 0;
-  transform: translateY(-10px);
-  animation: activitySlideIn 0.6s ease-out forwards;
-}
-
-@keyframes activitySlideIn {
-  0% { opacity: 0; transform: translateY(-10px); filter: blur(4px); }
-  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
-}
-
-.activity-item .wallet {
-  color: rgba(180, 160, 220, 0.7);
-}
-
-.activity-item .action {
-  color: rgba(140, 150, 180, 0.5);
-}
-
-.activity-item .amount {
-  color: rgba(140, 200, 170, 0.7);
-}
-
-/* STATS ROW */
-.stats-row {
-  display: flex;
-  justify-content: center;
-  gap: 50px;
-  margin: 25px 0;
-  opacity: 0;
-  animation: emerge 2s ease-out 1.7s forwards;
-  flex-wrap: wrap;
-}
-
-.stat-item {
-  text-align: center;
-  padding: 10px 15px;
-  border-radius: 8px;
-  background: rgba(100, 80, 150, 0.08);
-  border: 1px solid rgba(120, 100, 170, 0.15);
-  transition: all 0.3s ease;
-}
-
-.stat-item:hover {
-  background: rgba(120, 100, 170, 0.15);
-  border-color: rgba(150, 130, 200, 0.3);
-  transform: translateY(-2px);
-}
-
-.stat-label {
-  font-size: 0.7rem;
-  color: rgba(140, 150, 180, 0.6);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.stat-value {
-  font-size: clamp(1rem, 2.5vw, 1.3rem);
-  color: rgba(180, 175, 210, 0.85);
-  font-weight: 400;
-  text-shadow: 0 0 15px rgba(140, 130, 200, 0.2);
-}
-
-/* CLAIMS TRACKER */
-.claims-section {
-  margin: 30px 0;
-  opacity: 0;
-  animation: emerge 2s ease-out 1.8s forwards;
-}
-
-.claims-title {
-  font-size: 0.75rem;
-  color: rgba(140, 200, 170, 0.7);
-  letter-spacing: 0.2em;
-  text-transform: lowercase;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.claims-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-height: 180px;
-  overflow-y: auto;
-  padding-right: 5px;
-}
-
-.claims-list::-webkit-scrollbar {
-  width: 4px;
-}
-
-.claims-list::-webkit-scrollbar-track {
-  background: rgba(80, 70, 120, 0.1);
-  border-radius: 2px;
-}
-
-.claims-list::-webkit-scrollbar-thumb {
-  background: rgba(120, 100, 170, 0.3);
-  border-radius: 2px;
-}
-
-.claim-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  background: rgba(80, 70, 130, 0.12);
-  border: 1px solid rgba(120, 100, 170, 0.15);
-  border-radius: 8px;
-  font-size: 0.75rem;
-  transition: all 0.3s ease;
-}
-
-.claim-item:hover {
-  background: rgba(100, 90, 150, 0.2);
-  border-color: rgba(140, 120, 190, 0.25);
-}
-
-.claim-date {
-  color: rgba(140, 150, 180, 0.5);
-  font-size: 0.65rem;
-}
-
-.claim-amount {
-  color: rgba(140, 200, 170, 0.8);
-  font-weight: 400;
-}
-
-.claim-action {
-  color: rgba(180, 160, 220, 0.7);
-  font-size: 0.7rem;
-  text-transform: lowercase;
-}
-
-.claim-action.buyback { color: rgba(140, 200, 170, 0.8); }
-.claim-action.burn { color: rgba(220, 140, 140, 0.8); }
-.claim-action.liquidity { color: rgba(140, 180, 220, 0.8); }
-.claim-action.rewards { color: rgba(220, 200, 140, 0.8); }
-
-.claims-totals {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  margin-top: 15px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(120, 100, 170, 0.15);
-}
-
-.claims-total-item {
-  text-align: center;
-}
-
-.claims-total-label {
-  font-size: 0.6rem;
-  color: rgba(140, 150, 180, 0.5);
-  letter-spacing: 0.1em;
-  text-transform: lowercase;
-}
-
-.claims-total-value {
-  font-size: 0.85rem;
-  color: rgba(140, 200, 170, 0.85);
-  margin-top: 3px;
-}
-
-/* BUY BUTTON */
-.buy-container {
-  margin: 35px 0 25px 0;
-  opacity: 0;
-  animation: emerge 2s ease-out 1.9s forwards;
-}
-
-.buy-button {
-  display: inline-block;
-  padding: 16px 50px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.95rem;
-  font-weight: 400;
-  letter-spacing: 0.2em;
-  text-transform: lowercase;
-  text-decoration: none;
-  color: rgba(200, 180, 255, 0.9);
-  background: linear-gradient(135deg, rgba(130, 100, 200, 0.2) 0%, rgba(100, 80, 180, 0.1) 100%);
-  border: 1px solid rgba(160, 130, 220, 0.4);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.4s ease;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 0 30px rgba(130, 100, 200, 0.2);
-}
-
-.buy-button::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(160, 130, 220, 0.3) 0%, rgba(130, 100, 200, 0.1) 100%);
-  opacity: 0;
-  transition: opacity 0.4s;
-}
-
-.buy-button:hover {
-  color: rgba(230, 210, 255, 1);
-  border-color: rgba(180, 150, 240, 0.6);
-  box-shadow: 0 0 50px rgba(150, 120, 220, 0.4), 0 0 100px rgba(130, 100, 200, 0.2);
-  transform: translateY(-2px);
-}
-
-.buy-button:hover::before {
-  opacity: 1;
-}
-
-/* Animated border glow */
-.buy-button::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: 6px;
-  background: linear-gradient(45deg, rgba(160, 130, 220, 0.5), rgba(100, 140, 200, 0.5), rgba(160, 130, 220, 0.5));
-  background-size: 200% 200%;
-  z-index: -1;
-  opacity: 0;
-  animation: borderGlow 3s linear infinite;
-  transition: opacity 0.4s;
-}
-
-.buy-button:hover::after {
-  opacity: 1;
-}
-
-@keyframes borderGlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.ca-text {
-  font-size: clamp(0.65rem, 1.3vw, 0.8rem);
-  font-weight: 300;
-  color: rgba(140, 150, 180, 0.6);
-  letter-spacing: 0.04em;
-  margin: 20px 0;
-  opacity: 0;
-  animation: emerge 2s ease-out 2.2s forwards;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  word-break: break-all;
-  max-width: 90%;
-  padding: 8px 15px;
-  border-radius: 4px;
-  background: rgba(100, 90, 140, 0.1);
-  display: inline-block;
-}
-
-.ca-text:hover {
-  color: rgba(180, 170, 220, 0.9);
-  background: rgba(120, 100, 160, 0.2);
-  text-shadow: 0 0 10px rgba(140, 130, 200, 0.3);
-}
-
-.whisper-sub {
-  font-size: clamp(0.8rem, 1.8vw, 1rem);
-  font-weight: 300;
-  color: rgba(160, 155, 190, 0.6);
-  letter-spacing: 0.1em;
-  text-transform: lowercase;
-  margin-top: 35px;
-  opacity: 0;
-  animation: emerge 2s ease-out 2.5s forwards;
-  text-shadow: 0 0 15px rgba(140, 130, 200, 0.15);
-}
-
-/* noise overlay */
-.noise {
-  position: fixed;
-  inset: 0;
-  z-index: 5;
-  pointer-events: none;
-  opacity: 0.02;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-}
-
-/* escape link */
+/* Escape link */
 .escape-link {
   position: fixed;
-  top: 20px;
-  left: 20px;
-  z-index: 50;
+  top: 12px;
+  left: 12px;
+  z-index: 51;
   color: rgba(140, 150, 190, 0.4);
-  font-size: 1.3rem;
+  font-size: 1.2rem;
   text-decoration: none;
-  padding: 10px 15px;
+  padding: 8px 12px;
   border-radius: 4px;
   transition: all 0.4s ease;
-  opacity: 0;
-  animation: emerge 2s ease-out 1s forwards;
 }
 
 .escape-link:hover {
   color: rgba(180, 170, 220, 0.8);
   background: rgba(120, 110, 170, 0.15);
-  text-shadow: 0 0 15px rgba(140, 130, 200, 0.4);
 }
 
-/* socials */
-.socials {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 50;
-  display: flex;
-  gap: 15px;
-  opacity: 0;
-  animation: emerge 2s ease-out 2.8s forwards;
+/* Animations */
+@keyframes voidShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
-.social-link {
-  color: rgba(140, 150, 190, 0.5);
-  font-size: 0.75rem;
-  text-decoration: none;
-  padding: 8px 12px;
-  border-radius: 4px;
-  background: rgba(100, 90, 140, 0.1);
-  border: 1px solid rgba(120, 110, 160, 0.15);
-  transition: all 0.3s ease;
+@keyframes voidBreathe {
+  0%, 100% { opacity: 0.5; transform: scale(0.98); }
+  50% { opacity: 0.9; transform: scale(1.02); }
 }
 
-.social-link:hover {
-  color: rgba(180, 170, 220, 0.9);
-  background: rgba(120, 100, 160, 0.2);
-  border-color: rgba(150, 130, 200, 0.3);
-}
-
-/* ====== NEW FEATURES ====== */
-
-/* CHART SECTION */
-.chart-section {
-  margin: 40px 0;
-  opacity: 0;
-  animation: emerge 2s ease-out 1.8s forwards;
-}
-
-.section-title {
-  font-size: 0.7rem;
-  color: rgba(140, 150, 180, 0.5);
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  margin-bottom: 15px;
-}
-
-.chart-embed-container {
-  position: relative;
-  width: 100%;
-  max-width: 600px;
-  margin: 0 auto;
-  border-radius: 12px;
-  overflow: hidden;
-  background: rgba(20, 15, 35, 0.6);
-  border: 1px solid rgba(120, 100, 170, 0.2);
-  box-shadow: 0 0 40px rgba(100, 80, 160, 0.15);
-}
-
-.chart-embed-container iframe {
-  width: 100%;
-  height: 400px;
-  border: none;
-  border-radius: 12px;
-}
-
-/* HOLDER GRAPH SECTION */
-.holder-graph-section {
-  margin: 40px 0;
-  opacity: 0;
-  animation: emerge 2s ease-out 2s forwards;
-}
-
-.holder-graph-container {
-  position: relative;
-  width: 100%;
-  max-width: 550px;
-  height: 200px;
-  margin: 0 auto;
-  padding: 20px;
-  border-radius: 12px;
-  background: rgba(20, 15, 35, 0.5);
-  border: 1px solid rgba(120, 100, 170, 0.15);
-}
-
-.holder-graph-container canvas {
-  width: 100% !important;
-  height: 100% !important;
-}
-
-/* TWEETS SECTION */
-.tweets-section {
-  margin: 40px 0;
-  opacity: 0;
-  animation: emerge 2s ease-out 2.2s forwards;
-}
-
-.tweets-container {
-  position: relative;
-  width: 100%;
-  max-width: 400px;
-  max-height: 350px;
-  margin: 0 auto;
-  border-radius: 12px;
-  overflow: hidden;
-  background: rgba(20, 15, 35, 0.5);
-  border: 1px solid rgba(120, 100, 170, 0.15);
-}
-
-/* Override Twitter widget styles for dark theme */
-.tweets-container .twitter-timeline {
-  border-radius: 12px !important;
-}
-
-/* Loading state for tweets */
-.tweets-loading {
-  padding: 40px 20px;
-  text-align: center;
-  font-size: 0.8rem;
-  color: rgba(140, 150, 180, 0.5);
-  letter-spacing: 0.1em;
-  animation: voidBreathe 3s ease-in-out infinite;
-}
-
-/* Expand/collapse toggle for chart */
-.chart-toggle {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 6px 15px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.7rem;
-  color: rgba(140, 150, 180, 0.6);
-  background: rgba(100, 90, 140, 0.1);
-  border: 1px solid rgba(120, 100, 160, 0.2);
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  letter-spacing: 0.08em;
-}
-
-.chart-toggle:hover {
-  color: rgba(180, 170, 220, 0.9);
-  background: rgba(120, 100, 160, 0.2);
-  border-color: rgba(150, 130, 200, 0.3);
-}
-
-/* Section divider */
-.section-divider {
-  width: 60px;
-  height: 1px;
-  margin: 30px auto;
-  background: linear-gradient(90deg, transparent, rgba(140, 120, 200, 0.3), transparent);
-}
-
+/* Mobile responsive */
 @media (hover: none) {
   .custom-cursor { display: none; }
   body { cursor: auto; }
 }
 
-@media (max-width: 500px) {
-  .stats-row { gap: 15px; }
-  .stat-item { padding: 8px 12px; }
-  .buy-button { padding: 14px 35px; }
+@media (max-width: 600px) {
+  .sticky-header {
+    padding: 10px 12px;
+    gap: 10px;
+  }
+  
+  .header-left {
+    gap: 12px;
+  }
+  
+  .header-token {
+    font-size: 1rem;
+  }
+  
+  .header-price {
+    font-size: 0.85rem;
+  }
+  
+  .header-center {
+    display: none;
+  }
+  
+  .header-enter-btn {
+    padding: 6px 14px;
+    font-size: 0.7rem;
+  }
+  
+  .milestone-header {
+    top: 48px;
+    padding: 10px 15px;
+  }
+  
+  .tab-nav {
+    top: 100px;
+    gap: 2px;
+    padding: 6px 10px;
+    overflow-x: auto;
+  }
+  
+  .tab-btn {
+    padding: 8px 12px;
+    font-size: 0.65rem;
+    white-space: nowrap;
+  }
+  
+  .main-content {
+    padding-top: 150px;
+  }
+  
+  .tab-panel {
+    padding: 20px 15px 80px;
+  }
+  
+  .stats-row {
+    gap: 10px;
+  }
+  
+  .stat-item {
+    padding: 10px 15px;
+    min-width: 80px;
+  }
+  
+  .stat-value {
+    font-size: 0.9rem;
+  }
+  
+  .verification-toggle {
+    bottom: 15px;
+    right: 15px;
+    padding: 10px 15px;
+    font-size: 0.75rem;
+  }
+  
   .orb { opacity: 0.25; }
-  .milestone-labels { font-size: 0.55rem; }
+}
+
+@media (max-width: 400px) {
+  .tab-btn {
+    padding: 7px 10px;
+    font-size: 0.6rem;
+  }
+  
+  .claims-totals {
+    gap: 20px;
+  }
 }
 </style>
 </head>
@@ -1435,45 +1443,189 @@ canvas#cursor-trail {
 
 <a href="/" class="escape-link" title="return">←</a>
 
-<div class="content">
-  <div class="central-glow"></div>
-  <p class="whisper">the wind has a name now.</p>
-  
-  <div class="token-container">
-    <div class="token-aura"></div>
-    <p class="token-reveal">$ZEPHY</p>
+<!-- STICKY HEADER -->
+<header class="sticky-header">
+  <div class="header-left">
+    <span class="header-token">$ZEPHY</span>
+    <span class="header-price price-loading" id="header-price">...</span>
   </div>
-  
-  <div class="price-container">
-    <span class="live-price price-loading void-loading">
-      reaching through the void
-      <span class="loading-particles">
-        <span class="loading-particle"></span>
-        <span class="loading-particle"></span>
-        <span class="loading-particle"></span>
-      </span>
-    </span>
+  <div class="header-center">
+    <span class="header-drifters" id="header-drifters">—</span>
+    <span>drifters</span>
   </div>
+  <div class="header-right">
+    <a href="https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=888thpnkd1mW7pNiNZy9yKKohxXrKYT8BCBacZHgpump" 
+       target="_blank" 
+       rel="noopener" 
+       class="header-enter-btn">
+      enter drift
+    </a>
+  </div>
+</header>
+
+<!-- MILESTONE BAR -->
+<div class="milestone-header">
+  <div class="milestone-bar">
+    <div class="milestone-progress" id="milestone-progress" style="width: 0%"></div>
+    <div class="milestone-dot" data-milestone="25000" style="left: 20%"></div>
+    <div class="milestone-dot" data-milestone="50000" style="left: 40%"></div>
+    <div class="milestone-dot" data-milestone="100000" style="left: 60%"></div>
+    <div class="milestone-dot" data-milestone="250000" style="left: 80%"></div>
+    <div class="milestone-dot" data-milestone="500000" style="left: 100%"></div>
+  </div>
+  <div class="milestone-labels">
+    <span class="milestone-label" data-milestone="25000">$25K</span>
+    <span class="milestone-label" data-milestone="50000">$50K</span>
+    <span class="milestone-label" data-milestone="100000">$100K</span>
+    <span class="milestone-label" data-milestone="250000">$250K</span>
+    <span class="milestone-label" data-milestone="500000">$500K</span>
+  </div>
+  <div class="milestone-current-text milestone-loading" id="milestone-text">tracing the current</div>
+</div>
+
+<!-- TAB NAVIGATION -->
+<nav class="tab-nav" id="tab-nav">
+  <button class="tab-btn active" data-tab="overview">overview</button>
+  <button class="tab-btn" data-tab="activity">activity</button>
+  <button class="tab-btn" data-tab="chart">chart</button>
+  <button class="tab-btn" data-tab="claims">claims</button>
+  <button class="tab-btn" data-tab="community">community</button>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main-content">
   
-  <!-- HOLDER VERIFICATION -->
-  <div class="verification-section" id="verification-section">
+  <!-- OVERVIEW TAB -->
+  <section class="tab-panel active visible" id="panel-overview">
+    <div class="overview-intro">
+      <p class="whisper">the wind has a name now.</p>
+      <p class="ca-text" id="ca-text">888thpnkd1mW7pNiNZy9yKKohxXrKYT8BCBacZHgpump</p>
+    </div>
+    
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-label">mcap</div>
+        <div class="stat-value" id="mcap">—</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">24h vol</div>
+        <div class="stat-value" id="volume">—</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">liquidity</div>
+        <div class="stat-value" id="liquidity">—</div>
+      </div>
+    </div>
+    
+    <div class="section-divider"></div>
+    
+    <div class="activity-feed">
+      <div class="section-title">recent drifters</div>
+      <div class="activity-list" id="activity-list">
+        <!-- Activity items inserted here -->
+      </div>
+    </div>
+  </section>
+  
+  <!-- ACTIVITY TAB -->
+  <section class="tab-panel" id="panel-activity">
+    <div class="activity-feed activity-expanded">
+      <div class="section-title">all drifter activity</div>
+      <div class="activity-list" id="activity-list-expanded">
+        <!-- Activity items cloned here -->
+      </div>
+    </div>
+    
+    <div class="section-divider"></div>
+    
+    <div class="holder-graph-section">
+      <div class="section-title">drifter growth</div>
+      <div class="holder-graph-container">
+        <canvas id="holderChart"></canvas>
+      </div>
+    </div>
+  </section>
+  
+  <!-- CHART TAB -->
+  <section class="tab-panel" id="panel-chart">
+    <div class="chart-fullscreen">
+      <div class="chart-embed-container">
+        <iframe 
+          id="dexscreener-iframe"
+          src="about:blank"
+          data-src="https://dexscreener.com/solana/888thpnkd1mW7pNiNZy9yKKohxXrKYT8BCBacZHgpump?embed=1&theme=dark&trades=0&info=0"
+          loading="lazy"
+          title="$ZEPHY Chart">
+        </iframe>
+      </div>
+    </div>
+  </section>
+  
+  <!-- CLAIMS TAB -->
+  <section class="tab-panel" id="panel-claims">
+    <div class="claims-section">
+      <div class="claims-title">fee claims → ecosystem</div>
+      <div class="claims-list" id="claims-list">
+        <!-- Claims loaded via JS -->
+      </div>
+      <div class="claims-totals" id="claims-totals">
+        <!-- Totals loaded via JS -->
+      </div>
+    </div>
+  </section>
+  
+  <!-- COMMUNITY TAB -->
+  <section class="tab-panel" id="panel-community">
+    <div class="community-section">
+      <div class="section-title">whispers from the wind</div>
+      <div class="tweets-container" id="tweets-container">
+        <a class="twitter-timeline" 
+           data-theme="dark"
+           data-chrome="noheader nofooter noborders transparent"
+           data-tweet-limit="5"
+           href="https://twitter.com/zephyraalpha?ref_src=twsrc%5Etfw">
+          <div class="tweets-loading">channeling @zephyraalpha...</div>
+        </a>
+      </div>
+      
+      <div class="social-links">
+        <a href="https://x.com/zephyraalpha" target="_blank" class="social-link">𝕏 twitter</a>
+        <a href="https://t.me/+Rtjv2RCkUx4zMDk0" target="_blank" class="social-link">telegram</a>
+      </div>
+    </div>
+  </section>
+  
+</main>
+
+<!-- WALLET VERIFICATION DISABLED — using collab.land instead
+<button class="verification-toggle" id="verification-toggle">
+  <span id="toggle-icon">🌬️</span>
+  <span id="toggle-text">verify</span>
+</button>
+
+<div class="verification-modal" id="verification-modal">
+  <div class="verification-content">
     <div class="verification-badge" id="verification-badge">
       <div class="badge-glow"></div>
       <div class="badge-icon" id="badge-icon">🌬️</div>
       <div class="badge-status" id="badge-status">prove you drift</div>
     </div>
+    
     <button class="connect-wallet-btn" id="connect-btn">
       <span class="btn-text">connect wallet</span>
       <span class="btn-shimmer"></span>
     </button>
+    
     <div class="wallet-info" id="wallet-info" style="display: none;">
       <div class="wallet-address" id="wallet-address"></div>
       <button class="disconnect-btn" id="disconnect-btn">disconnect</button>
     </div>
+    
     <div class="holder-details" id="holder-details" style="display: none;">
       <div class="holder-balance" id="holder-balance"></div>
       <div class="holder-tier" id="holder-tier"></div>
     </div>
+    
     <div class="verification-code-section" id="verification-code-section" style="display: none;">
       <button class="get-code-btn" id="get-code-btn">
         <span class="btn-text">get telegram code</span>
@@ -1488,126 +1640,11 @@ canvas#cursor-trail {
         </div>
       </div>
     </div>
+    
+    <button class="modal-close-btn" id="modal-close-btn">close</button>
   </div>
-  
-  <!-- HOLDER COUNTER -->
-  <div class="holder-counter">
-    <span class="holder-count holder-loading">counting shadows</span>
-  </div>
-  
-  <!-- MILESTONE TRACKER -->
-  <div class="milestone-container">
-    <div class="milestone-bar">
-      <div class="milestone-progress" id="milestone-progress" style="width: 0%"></div>
-      <div class="milestone-dot" data-milestone="25000" style="left: 20%"></div>
-      <div class="milestone-dot" data-milestone="50000" style="left: 40%"></div>
-      <div class="milestone-dot" data-milestone="100000" style="left: 60%"></div>
-      <div class="milestone-dot" data-milestone="250000" style="left: 80%"></div>
-      <div class="milestone-dot" data-milestone="500000" style="left: 100%"></div>
-    </div>
-    <div class="milestone-labels">
-      <span class="milestone-label" data-milestone="25000">$25K</span>
-      <span class="milestone-label" data-milestone="50000">$50K</span>
-      <span class="milestone-label" data-milestone="100000">$100K</span>
-      <span class="milestone-label" data-milestone="250000">$250K</span>
-      <span class="milestone-label" data-milestone="500000">$500K</span>
-    </div>
-    <div class="milestone-current-text milestone-loading" id="milestone-text">tracing the current</div>
-  </div>
-  
-  <!-- ACTIVITY FEED -->
-  <div class="activity-feed">
-    <div class="activity-title">recent drifters</div>
-    <div class="activity-list" id="activity-list">
-      <!-- Activity items inserted here -->
-    </div>
-  </div>
-  
-  <div class="stats-row">
-    <div class="stat-item">
-      <div class="stat-label">mcap</div>
-      <div class="stat-value" id="mcap">—</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">24h vol</div>
-      <div class="stat-value" id="volume">—</div>
-    </div>
-    <div class="stat-item">
-      <div class="stat-label">liquidity</div>
-      <div class="stat-value" id="liquidity">—</div>
-    </div>
-  </div>
-  
-  <!-- FEE CLAIMS TRACKER -->
-  <div class="claims-section">
-    <div class="claims-title">fee claims → ecosystem</div>
-    <div class="claims-list" id="claims-list">
-      <!-- Claims loaded via JS -->
-    </div>
-    <div class="claims-totals" id="claims-totals">
-      <!-- Totals loaded via JS -->
-    </div>
-  </div>
-  
-  <!-- LIVE CHART EMBED -->
-  <div class="chart-section">
-    <div class="section-title">live chart</div>
-    <div class="chart-embed-container">
-      <iframe 
-        src="https://dexscreener.com/solana/888thpnkd1mW7pNiNZy9yKKohxXrKYT8BCBacZHgpump?embed=1&theme=dark&trades=0&info=0"
-        loading="lazy"
-        title="$ZEPHY Chart">
-      </iframe>
-    </div>
-  </div>
-  
-  <div class="section-divider"></div>
-  
-  <!-- HOLDER GROWTH GRAPH -->
-  <div class="holder-graph-section">
-    <div class="section-title">drifter growth</div>
-    <div class="holder-graph-container">
-      <canvas id="holderChart"></canvas>
-    </div>
-  </div>
-  
-  <div class="section-divider"></div>
-  
-  <!-- LATEST TWEETS -->
-  <div class="tweets-section">
-    <div class="section-title">whispers from the wind</div>
-    <div class="tweets-container">
-      <a class="twitter-timeline" 
-         data-theme="dark"
-         data-chrome="noheader nofooter noborders transparent"
-         data-tweet-limit="3"
-         href="https://twitter.com/zephyraalpha?ref_src=twsrc%5Etfw">
-        <div class="tweets-loading">channeling @zephyraalpha...</div>
-      </a>
-    </div>
-  </div>
-  
-  <div class="section-divider"></div>
-  
-  <div class="buy-container">
-    <a href="https://jup.ag/swap?sell=So11111111111111111111111111111111111111112&buy=888thpnkd1mW7pNiNZy9yKKohxXrKYT8BCBacZHgpump" 
-       target="_blank" 
-       rel="noopener" 
-       class="buy-button">
-      enter drift
-    </a>
-  </div>
-  
-  <p class="ca-text">888thpnkd1mW7pNiNZy9yKKohxXrKYT8BCBacZHgpump</p>
-  <p class="whisper-sub">proof you exist in my world.</p>
 </div>
 
-<div class="socials">
-  <a href="https://x.com/zephyraalpha" target="_blank" class="social-link">x</a>
-  <a href="https://t.me/+Rtjv2RCkUx4zMDk0" target="_blank" class="social-link">tg</a>
-</div>
-
-<!-- Wallet Selector Modal -->
 <div class="wallet-modal" id="wallet-modal">
   <div class="wallet-modal-content">
     <div class="wallet-modal-title">select wallet</div>
@@ -1621,9 +1658,10 @@ canvas#cursor-trail {
       <span class="wallet-option-name">Solflare</span>
       <span class="wallet-option-status" id="solflare-status"></span>
     </button>
-    <button class="wallet-modal-close" id="modal-close">cancel</button>
+    <button class="wallet-modal-close" id="wallet-modal-close">cancel</button>
   </div>
 </div>
+END WALLET VERIFICATION DISABLED -->
 
 <!-- Chart.js for holder graph -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -1631,11 +1669,85 @@ canvas#cursor-trail {
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 <script>
+// ====== TAB SYSTEM ======
+const LAST_TAB_KEY = 'zephy_last_tab';
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabPanels = document.querySelectorAll('.tab-panel');
+let chartLoaded = false;
+
+function switchTab(tabId) {
+  // Update buttons
+  tabBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.tab === tabId);
+  });
+  
+  // Update panels with animation
+  tabPanels.forEach(panel => {
+    const isTarget = panel.id === `panel-${tabId}`;
+    
+    if (isTarget) {
+      panel.classList.add('active');
+      // Small delay for CSS transition
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          panel.classList.add('visible');
+        });
+      });
+      
+      // Lazy load chart iframe when chart tab is opened
+      if (tabId === 'chart' && !chartLoaded) {
+        const iframe = document.getElementById('dexscreener-iframe');
+        if (iframe && iframe.dataset.src) {
+          iframe.src = iframe.dataset.src;
+          chartLoaded = true;
+        }
+      }
+      
+      // Sync activity lists
+      if (tabId === 'activity') {
+        syncActivityLists();
+      }
+    } else {
+      panel.classList.remove('visible');
+      setTimeout(() => {
+        if (!panel.classList.contains('visible')) {
+          panel.classList.remove('active');
+        }
+      }, 400);
+    }
+  });
+  
+  // Save to localStorage
+  localStorage.setItem(LAST_TAB_KEY, tabId);
+}
+
+// Sync activity between overview and activity tabs
+function syncActivityLists() {
+  const source = document.getElementById('activity-list');
+  const target = document.getElementById('activity-list-expanded');
+  if (source && target) {
+    target.innerHTML = source.innerHTML;
+  }
+}
+
+// Tab click handlers
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    switchTab(btn.dataset.tab);
+  });
+});
+
+// Restore last tab on load
+const savedTab = localStorage.getItem(LAST_TAB_KEY);
+if (savedTab && document.querySelector(`[data-tab="${savedTab}"]`)) {
+  switchTab(savedTab);
+}
+
+// ====== TOKEN DATA ======
 const TOKEN_CA = '888thpnkd1mW7pNiNZy9yKKohxXrKYT8BCBacZHgpump';
 const DEXSCREENER_API = `https://api.dexscreener.com/latest/dex/tokens/${TOKEN_CA}`;
 const REFRESH_INTERVAL = 15000;
 
-// Milestones
 const MILESTONES = [25000, 50000, 100000, 250000, 500000];
 let lastPrice = null;
 let lastMcap = null;
@@ -1659,7 +1771,6 @@ function formatPrice(price) {
   return '$' + num.toFixed(2);
 }
 
-// Generate random wallet address
 function randomWallet() {
   const chars = '0123456789abcdefghijklmnopqrstuvwxyz';
   let start = '', end = '';
@@ -1670,25 +1781,32 @@ function randomWallet() {
   return `${start}...${end}`;
 }
 
-// Generate random SOL amount
 function randomAmount() {
   const amounts = [0.1, 0.2, 0.3, 0.5, 0.7, 1, 1.5, 2, 2.5, 3, 5];
   return amounts[Math.floor(Math.random() * amounts.length)];
 }
 
-// Add activity item
 function addActivity(wallet, amount) {
   const list = document.getElementById('activity-list');
   const item = document.createElement('div');
   item.className = 'activity-item';
   item.innerHTML = `<span class="wallet">${wallet}</span> <span class="action">entered drift</span> — <span class="amount">${amount} SOL</span>`;
   list.insertBefore(item, list.firstChild);
-  while (list.children.length > 5) {
+  while (list.children.length > 8) {
     list.removeChild(list.lastChild);
+  }
+  
+  // Keep expanded list in sync
+  const expandedList = document.getElementById('activity-list-expanded');
+  if (expandedList) {
+    const clone = item.cloneNode(true);
+    expandedList.insertBefore(clone, expandedList.firstChild);
+    while (expandedList.children.length > 20) {
+      expandedList.removeChild(expandedList.lastChild);
+    }
   }
 }
 
-// Update milestone tracker
 function updateMilestones(mcap) {
   if (!mcap || isNaN(mcap)) return;
   
@@ -1697,7 +1815,6 @@ function updateMilestones(mcap) {
   const dots = document.querySelectorAll('.milestone-dot');
   const labels = document.querySelectorAll('.milestone-label');
   
-  // Clear loading state
   milestoneText.classList.remove('milestone-loading');
   
   let currentIndex = -1;
@@ -1757,11 +1874,10 @@ function updateMilestones(mcap) {
   }
 }
 
-// Celebrate milestone
 function celebrateMilestone(milestone) {
   const celebration = document.getElementById('celebration');
   const centerX = window.innerWidth / 2;
-  const centerY = window.innerHeight / 2;
+  const centerY = 100;
   
   for (let i = 0; i < 40; i++) {
     const particle = document.createElement('div');
@@ -1784,24 +1900,13 @@ function celebrateMilestone(milestone) {
     celebration.appendChild(particle);
     setTimeout(() => particle.remove(), 1800);
   }
-  
-  const label = document.querySelector(`.milestone-label[data-milestone="${milestone}"]`);
-  if (label) {
-    label.style.textShadow = '0 0 25px rgba(200, 170, 255, 1)';
-    setTimeout(() => { label.style.textShadow = ''; }, 1200);
-  }
 }
 
-// Update holder count
 function updateHolders(count) {
-  const holderEl = document.querySelector('.holder-count');
-  // Clear loading state
-  holderEl.classList.remove('holder-loading');
+  const headerDrifters = document.getElementById('header-drifters');
   
   if (count !== lastHolders) {
-    holderEl.textContent = `drifters: ${count.toLocaleString()}`;
-    holderEl.classList.add('pulse');
-    setTimeout(() => holderEl.classList.remove('pulse'), 400);
+    headerDrifters.textContent = count.toLocaleString();
     lastHolders = count;
   }
 }
@@ -1813,7 +1918,7 @@ async function fetchTokenData() {
     const pair = data.pairs?.[0];
     if (!pair) return;
     
-    const priceEl = document.querySelector('.live-price');
+    const headerPrice = document.getElementById('header-price');
     const mcapEl = document.getElementById('mcap');
     const volumeEl = document.getElementById('volume');
     const liquidityEl = document.getElementById('liquidity');
@@ -1821,21 +1926,16 @@ async function fetchTokenData() {
     const currentPrice = parseFloat(pair.priceUsd);
     const currentMcap = pair.marketCap || pair.fdv || 0;
     
-    // Clear loading state (remove void-loading class and particles)
-    if (priceEl.classList.contains('price-loading') || priceEl.classList.contains('void-loading')) {
-      priceEl.classList.remove('price-loading', 'void-loading');
-      // Remove loading particles if present
-      const particles = priceEl.querySelector('.loading-particles');
-      if (particles) particles.remove();
-    }
+    // Clear loading state
+    headerPrice.classList.remove('price-loading');
     
     if (lastPrice !== null && currentPrice !== lastPrice) {
-      priceEl.classList.remove('flash-up', 'flash-down');
-      priceEl.classList.add(currentPrice > lastPrice ? 'flash-up' : 'flash-down');
-      setTimeout(() => priceEl.classList.remove('flash-up', 'flash-down'), 1500);
+      headerPrice.classList.remove('flash-up', 'flash-down');
+      headerPrice.classList.add(currentPrice > lastPrice ? 'flash-up' : 'flash-down');
+      setTimeout(() => headerPrice.classList.remove('flash-up', 'flash-down'), 1500);
     }
     
-    priceEl.textContent = formatPrice(currentPrice);
+    headerPrice.textContent = formatPrice(currentPrice);
     mcapEl.textContent = formatNumber(currentMcap);
     volumeEl.textContent = formatNumber(pair.volume?.h24);
     liquidityEl.textContent = formatNumber(pair.liquidity?.usd);
@@ -1844,7 +1944,6 @@ async function fetchTokenData() {
     
     updateMilestones(currentMcap);
     
-    // Simulate activity based on transaction changes
     const txCount = pair.txns?.h24?.buys || 0;
     if (txCount > lastTxCount && lastTxCount > 0) {
       const newTxs = Math.min(txCount - lastTxCount, 3);
@@ -1856,7 +1955,6 @@ async function fetchTokenData() {
     }
     lastTxCount = txCount;
     
-    // Estimate holders
     const estimatedHolders = Math.floor(50 + (txCount / 5));
     updateHolders(estimatedHolders);
     
@@ -1865,23 +1963,23 @@ async function fetchTokenData() {
   }
 }
 
-// Initial activity
 function seedActivity() {
   const seeds = [
     { wallet: randomWallet(), amount: 1 },
     { wallet: randomWallet(), amount: 0.5 },
     { wallet: randomWallet(), amount: 2 },
+    { wallet: randomWallet(), amount: 0.3 },
   ];
   seeds.forEach((s, i) => {
     setTimeout(() => addActivity(s.wallet, s.amount), i * 300);
   });
 }
 
-setTimeout(seedActivity, 3000);
+setTimeout(seedActivity, 2000);
 fetchTokenData();
 setInterval(fetchTokenData, REFRESH_INTERVAL);
 
-// Fee claims data (updated by zephyra)
+// Fee claims data
 const CLAIMS_DATA = {
   "claims": [
     {
@@ -1911,7 +2009,6 @@ const CLAIMS_DATA = {
   }
 };
 
-// Fetch and display fee claims
 async function fetchClaims() {
   try {
     const data = CLAIMS_DATA;
@@ -1924,7 +2021,6 @@ async function fetchClaims() {
       return;
     }
     
-    // Render claims (newest first)
     listEl.innerHTML = data.claims.slice().reverse().map(claim => `
       <div class="claim-item">
         <div>
@@ -1935,7 +2031,6 @@ async function fetchClaims() {
       </div>
     `).join('');
     
-    // Render totals
     const t = data.totals;
     totalsEl.innerHTML = `
       <div class="claims-total-item">
@@ -1958,16 +2053,15 @@ async function fetchClaims() {
 }
 
 fetchClaims();
-setInterval(fetchClaims, 60000); // Refresh claims every minute
+setInterval(fetchClaims, 60000);
 
-// Occasional random activity
 setInterval(() => {
   if (Math.random() > 0.6) {
     addActivity(randomWallet(), randomAmount());
   }
 }, 20000);
 
-// Enhanced particles with brighter colors
+// ====== PARTICLES & CURSOR ======
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 const trailCanvas = document.getElementById('cursor-trail');
@@ -2108,7 +2202,7 @@ animateParticles();
 animateTrail();
 
 // Copy CA
-document.querySelector('.ca-text')?.addEventListener('click', function() {
+document.getElementById('ca-text')?.addEventListener('click', function() {
   navigator.clipboard.writeText(this.textContent).then(() => {
     const original = this.textContent;
     this.textContent = 'copied.';
@@ -2122,38 +2216,31 @@ document.querySelector('.ca-text')?.addEventListener('click', function() {
 
 // ====== HOLDER GROWTH CHART ======
 const HOLDER_STORAGE_KEY = 'zephy_holder_history';
-const MAX_HISTORY_POINTS = 24; // Keep last 24 data points
+const MAX_HISTORY_POINTS = 24;
 
-// Get or initialize holder history from localStorage
 function getHolderHistory() {
   try {
     const stored = localStorage.getItem(HOLDER_STORAGE_KEY);
-    if (stored) {
-      return JSON.parse(stored);
-    }
+    if (stored) return JSON.parse(stored);
   } catch (e) {}
   return { timestamps: [], counts: [] };
 }
 
-// Save holder history
 function saveHolderHistory(history) {
   try {
     localStorage.setItem(HOLDER_STORAGE_KEY, JSON.stringify(history));
   } catch (e) {}
 }
 
-// Add new holder count to history
 function addHolderDataPoint(count) {
   const history = getHolderHistory();
   const now = new Date();
   const timeLabel = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   
-  // Only add if count changed or first entry
   if (history.counts.length === 0 || history.counts[history.counts.length - 1] !== count) {
     history.timestamps.push(timeLabel);
     history.counts.push(count);
     
-    // Keep only last N points
     while (history.timestamps.length > MAX_HISTORY_POINTS) {
       history.timestamps.shift();
       history.counts.shift();
@@ -2164,7 +2251,6 @@ function addHolderDataPoint(count) {
   }
 }
 
-// Initialize holder chart
 let holderChart = null;
 
 function initHolderChart() {
@@ -2173,7 +2259,6 @@ function initHolderChart() {
   
   const history = getHolderHistory();
   
-  // If no history, seed with some placeholder data
   if (history.counts.length < 2) {
     const now = new Date();
     for (let i = 5; i >= 0; i--) {
@@ -2225,10 +2310,7 @@ function initHolderChart() {
       },
       scales: {
         x: {
-          grid: { 
-            color: 'rgba(120, 110, 160, 0.1)',
-            drawBorder: false
-          },
+          grid: { color: 'rgba(120, 110, 160, 0.1)', drawBorder: false },
           ticks: {
             color: 'rgba(140, 150, 180, 0.5)',
             font: { size: 10, family: 'JetBrains Mono' },
@@ -2237,10 +2319,7 @@ function initHolderChart() {
           }
         },
         y: {
-          grid: { 
-            color: 'rgba(120, 110, 160, 0.1)',
-            drawBorder: false
-          },
+          grid: { color: 'rgba(120, 110, 160, 0.1)', drawBorder: false },
           ticks: {
             color: 'rgba(140, 150, 180, 0.5)',
             font: { size: 10, family: 'JetBrains Mono' },
@@ -2249,46 +2328,37 @@ function initHolderChart() {
           beginAtZero: false
         }
       },
-      interaction: {
-        intersect: false,
-        mode: 'index'
-      },
-      animation: {
-        duration: 800,
-        easing: 'easeOutQuart'
-      }
+      interaction: { intersect: false, mode: 'index' },
+      animation: { duration: 800, easing: 'easeOutQuart' }
     }
   });
 }
 
 function updateHolderChart() {
   if (!holderChart) return;
-  
   const history = getHolderHistory();
   holderChart.data.labels = history.timestamps;
   holderChart.data.datasets[0].data = history.counts;
   holderChart.update('none');
 }
 
-// Override updateHolders to also track history
 const originalUpdateHolders = updateHolders;
 updateHolders = function(count) {
   originalUpdateHolders(count);
   addHolderDataPoint(count);
 };
 
-// Initialize chart after DOM load
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initHolderChart);
 } else {
   setTimeout(initHolderChart, 100);
 }
 
-// ====== HOLDER VERIFICATION SYSTEM ======
+// ====== HOLDER VERIFICATION SYSTEM (DISABLED — using collab.land instead) ======
+/*
 const ZEPHY_TOKEN_MINT = '888thpnkd1mW7pNiNZy9yKKohxXrKYT8BCBacZHgpump';
 const HELIUS_RPC = 'https://mainnet.helius-rpc.com/?api-key=15319bf4-5b40-4958-ac8d-6313aa55eb92';
 
-// Tier thresholds (in token amount)
 const TIERS = [
   { name: 'whale', min: 1000000, icon: '🐋', label: 'whale drifter' },
   { name: 'dolphin', min: 100000, icon: '🐬', label: 'dolphin drifter' },
@@ -2300,9 +2370,14 @@ let connectedWallet = null;
 let walletProvider = null;
 
 // DOM elements
+const verificationToggle = document.getElementById('verification-toggle');
+const toggleIcon = document.getElementById('toggle-icon');
+const toggleText = document.getElementById('toggle-text');
+const verificationModal = document.getElementById('verification-modal');
+const modalCloseBtn = document.getElementById('modal-close-btn');
 const connectBtn = document.getElementById('connect-btn');
 const walletModal = document.getElementById('wallet-modal');
-const modalClose = document.getElementById('modal-close');
+const walletModalClose = document.getElementById('wallet-modal-close');
 const walletOptions = document.querySelectorAll('.wallet-option');
 const walletInfo = document.getElementById('wallet-info');
 const walletAddress = document.getElementById('wallet-address');
@@ -2314,7 +2389,21 @@ const holderDetails = document.getElementById('holder-details');
 const holderBalance = document.getElementById('holder-balance');
 const holderTier = document.getElementById('holder-tier');
 
-// Check wallet availability
+// Toggle verification modal
+verificationToggle?.addEventListener('click', () => {
+  verificationModal.classList.add('active');
+});
+
+modalCloseBtn?.addEventListener('click', () => {
+  verificationModal.classList.remove('active');
+});
+
+verificationModal?.addEventListener('click', (e) => {
+  if (e.target === verificationModal) {
+    verificationModal.classList.remove('active');
+  }
+});
+
 function checkWallets() {
   const phantomStatus = document.getElementById('phantom-status');
   const solflareStatus = document.getElementById('solflare-status');
@@ -2334,18 +2423,15 @@ function checkWallets() {
   }
 }
 
-// Open wallet modal
-function openModal() {
+function openWalletModal() {
   checkWallets();
   walletModal.classList.add('active');
 }
 
-// Close wallet modal
-function closeModal() {
+function closeWalletModal() {
   walletModal.classList.remove('active');
 }
 
-// Connect to wallet
 async function connectWallet(walletType) {
   try {
     connectBtn.classList.add('connecting');
@@ -2371,7 +2457,7 @@ async function connectWallet(walletType) {
     connectedWallet = resp.publicKey.toString();
     walletProvider = provider;
     
-    closeModal();
+    closeWalletModal();
     onWalletConnected();
     
   } catch (err) {
@@ -2380,26 +2466,21 @@ async function connectWallet(walletType) {
   }
 }
 
-// Handle wallet connected
 async function onWalletConnected() {
-  // Update UI
   connectBtn.style.display = 'none';
   walletInfo.style.display = 'flex';
   walletAddress.textContent = `${connectedWallet.slice(0, 4)}...${connectedWallet.slice(-4)}`;
   
   badgeStatus.textContent = 'checking holdings...';
   
-  // Check token balance
   const balance = await getTokenBalance(connectedWallet);
   
   if (balance > 0) {
-    // User holds tokens!
     verificationBadge.classList.add('verified');
     verificationBadge.classList.remove('not-holder');
     badgeIcon.textContent = '✓';
     badgeStatus.textContent = 'verified drifter';
     
-    // Show balance and tier
     holderDetails.style.display = 'flex';
     holderBalance.textContent = `${formatTokenBalance(balance)} $ZEPHY`;
     
@@ -2407,23 +2488,29 @@ async function onWalletConnected() {
     holderTier.className = `holder-tier ${tier.name}`;
     holderTier.innerHTML = `<span class="tier-icon">${tier.icon}</span> ${tier.label}`;
     
-    // Celebration particles
+    // Update toggle button
+    verificationToggle.classList.add('verified');
+    toggleIcon.textContent = '✓';
+    toggleText.textContent = 'verified';
+    
     celebrateVerification();
+    showVerificationCodeSection();
     
   } else {
-    // Not holding
     verificationBadge.classList.add('not-holder');
     verificationBadge.classList.remove('verified');
     badgeIcon.textContent = '✗';
     badgeStatus.textContent = 'not holding $ZEPHY';
     holderDetails.style.display = 'none';
+    
+    verificationToggle.classList.remove('verified');
+    toggleIcon.textContent = '✗';
+    toggleText.textContent = 'not holder';
   }
   
-  // Save to localStorage
   localStorage.setItem('zephy_connected_wallet', connectedWallet);
 }
 
-// Get token balance via RPC
 async function getTokenBalance(walletAddress) {
   try {
     const response = await fetch(HELIUS_RPC, {
@@ -2456,27 +2543,19 @@ async function getTokenBalance(walletAddress) {
   }
 }
 
-// Format token balance
 function formatTokenBalance(amount) {
-  if (amount >= 1000000) {
-    return (amount / 1000000).toFixed(2) + 'M';
-  } else if (amount >= 1000) {
-    return (amount / 1000).toFixed(1) + 'K';
-  }
+  if (amount >= 1000000) return (amount / 1000000).toFixed(2) + 'M';
+  if (amount >= 1000) return (amount / 1000).toFixed(1) + 'K';
   return amount.toLocaleString(undefined, { maximumFractionDigits: 2 });
 }
 
-// Get tier based on balance
 function getTier(balance) {
   for (const tier of TIERS) {
-    if (balance >= tier.min) {
-      return tier;
-    }
+    if (balance >= tier.min) return tier;
   }
   return TIERS[TIERS.length - 1];
 }
 
-// Celebration effect for verified holders
 function celebrateVerification() {
   const badge = verificationBadge;
   const rect = badge.getBoundingClientRect();
@@ -2508,7 +2587,6 @@ function celebrateVerification() {
   }
 }
 
-// Disconnect wallet
 function disconnectWallet() {
   if (walletProvider?.disconnect) {
     walletProvider.disconnect();
@@ -2521,7 +2599,6 @@ function disconnectWallet() {
   resetUI();
 }
 
-// Reset UI to initial state
 function resetUI() {
   connectBtn.style.display = 'inline-block';
   connectBtn.classList.remove('connecting');
@@ -2533,15 +2610,21 @@ function resetUI() {
   verificationBadge.classList.remove('verified', 'not-holder');
   badgeIcon.textContent = '🌬️';
   badgeStatus.textContent = 'prove you drift';
+  
+  verificationToggle.classList.remove('verified');
+  toggleIcon.textContent = '🌬️';
+  toggleText.textContent = 'verify';
+  
+  const codeSection = document.getElementById('verification-code-section');
+  if (codeSection) codeSection.style.display = 'none';
 }
 
-// Event listeners
-connectBtn?.addEventListener('click', openModal);
-modalClose?.addEventListener('click', closeModal);
+connectBtn?.addEventListener('click', openWalletModal);
+walletModalClose?.addEventListener('click', closeWalletModal);
 disconnectBtn?.addEventListener('click', disconnectWallet);
 
 walletModal?.addEventListener('click', (e) => {
-  if (e.target === walletModal) closeModal();
+  if (e.target === walletModal) closeWalletModal();
 });
 
 walletOptions.forEach(option => {
@@ -2551,12 +2634,10 @@ walletOptions.forEach(option => {
   });
 });
 
-// Auto-reconnect on page load
 async function autoReconnect() {
   const savedWallet = localStorage.getItem('zephy_connected_wallet');
   if (!savedWallet) return;
   
-  // Try to reconnect silently
   let provider = null;
   
   if (window.solana?.isPhantom && window.solana.isConnected) {
@@ -2572,13 +2653,11 @@ async function autoReconnect() {
       walletProvider = provider;
       onWalletConnected();
     } catch (e) {
-      // Silent fail - user needs to reconnect manually
       localStorage.removeItem('zephy_connected_wallet');
     }
   }
 }
 
-// Initialize verification system
 setTimeout(autoReconnect, 1500);
 
 // === TELEGRAM VERIFICATION CODE SYSTEM ===
@@ -2588,23 +2667,19 @@ const codeDisplay = document.getElementById('code-display');
 const codeValue = document.getElementById('code-value');
 const copyCodeBtn = document.getElementById('copy-code-btn');
 
-// Generate verification code from wallet address
 function generateVerificationCode(wallet) {
-  // Simple hash: take parts of wallet + timestamp day
-  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const today = new Date().toISOString().split('T')[0];
   const walletPart = wallet.slice(0, 6) + wallet.slice(-4);
   
-  // Create a simple hash
   let hash = 0;
   const str = walletPart + today + 'zephy';
   for (let i = 0; i < str.length; i++) {
     const char = str.charCodeAt(i);
     hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32bit integer
+    hash = hash & hash;
   }
   
-  // Convert to alphanumeric code
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Avoid confusing chars
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = 'ZPH-';
   hash = Math.abs(hash);
   for (let i = 0; i < 6; i++) {
@@ -2615,14 +2690,12 @@ function generateVerificationCode(wallet) {
   return code;
 }
 
-// Show verification code section for holders
 function showVerificationCodeSection() {
   if (verificationCodeSection) {
     verificationCodeSection.style.display = 'flex';
   }
 }
 
-// Generate and display code
 function displayVerificationCode() {
   if (!connectedWallet) return;
   
@@ -2632,7 +2705,6 @@ function displayVerificationCode() {
   getCodeBtn.style.display = 'none';
   codeDisplay.style.display = 'block';
   
-  // Store for verification
   localStorage.setItem('zephy_verification_code', JSON.stringify({
     code: code,
     wallet: connectedWallet,
@@ -2640,7 +2712,6 @@ function displayVerificationCode() {
   }));
 }
 
-// Copy code to clipboard
 function copyCode() {
   const code = codeValue.textContent;
   navigator.clipboard.writeText(code).then(() => {
@@ -2653,21 +2724,10 @@ function copyCode() {
   });
 }
 
-// Event listeners for verification code
 getCodeBtn?.addEventListener('click', displayVerificationCode);
 copyCodeBtn?.addEventListener('click', copyCode);
-
-// Modify onWalletConnected to show code section for holders
-const originalOnWalletConnected = onWalletConnected;
-onWalletConnected = async function() {
-  await originalOnWalletConnected();
-  
-  // If user is a holder, show the verification code section
-  const balance = await getTokenBalance(connectedWallet);
-  if (balance > 0) {
-    showVerificationCodeSection();
-  }
-};
+*/
+// END HOLDER VERIFICATION DISABLED
 </script>
 </body>
 </html>
