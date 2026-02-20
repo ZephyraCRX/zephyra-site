@@ -1011,6 +1011,109 @@ canvas#cursor-trail {
   text-shadow: 0 0 15px rgba(140, 130, 200, 0.2);
 }
 
+/* CLAIMS TRACKER */
+.claims-section {
+  margin: 30px 0;
+  opacity: 0;
+  animation: emerge 2s ease-out 1.8s forwards;
+}
+
+.claims-title {
+  font-size: 0.75rem;
+  color: rgba(140, 200, 170, 0.7);
+  letter-spacing: 0.2em;
+  text-transform: lowercase;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.claims-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.claims-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.claims-list::-webkit-scrollbar-track {
+  background: rgba(80, 70, 120, 0.1);
+  border-radius: 2px;
+}
+
+.claims-list::-webkit-scrollbar-thumb {
+  background: rgba(120, 100, 170, 0.3);
+  border-radius: 2px;
+}
+
+.claim-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(80, 70, 130, 0.12);
+  border: 1px solid rgba(120, 100, 170, 0.15);
+  border-radius: 8px;
+  font-size: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.claim-item:hover {
+  background: rgba(100, 90, 150, 0.2);
+  border-color: rgba(140, 120, 190, 0.25);
+}
+
+.claim-date {
+  color: rgba(140, 150, 180, 0.5);
+  font-size: 0.65rem;
+}
+
+.claim-amount {
+  color: rgba(140, 200, 170, 0.8);
+  font-weight: 400;
+}
+
+.claim-action {
+  color: rgba(180, 160, 220, 0.7);
+  font-size: 0.7rem;
+  text-transform: lowercase;
+}
+
+.claim-action.buyback { color: rgba(140, 200, 170, 0.8); }
+.claim-action.burn { color: rgba(220, 140, 140, 0.8); }
+.claim-action.liquidity { color: rgba(140, 180, 220, 0.8); }
+.claim-action.rewards { color: rgba(220, 200, 140, 0.8); }
+
+.claims-totals {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 15px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(120, 100, 170, 0.15);
+}
+
+.claims-total-item {
+  text-align: center;
+}
+
+.claims-total-label {
+  font-size: 0.6rem;
+  color: rgba(140, 150, 180, 0.5);
+  letter-spacing: 0.1em;
+  text-transform: lowercase;
+}
+
+.claims-total-value {
+  font-size: 0.85rem;
+  color: rgba(140, 200, 170, 0.85);
+  margin-top: 3px;
+}
+
 /* BUY BUTTON */
 .buy-container {
   margin: 35px 0 25px 0;
@@ -1435,6 +1538,17 @@ canvas#cursor-trail {
     </div>
   </div>
   
+  <!-- FEE CLAIMS TRACKER -->
+  <div class="claims-section">
+    <div class="claims-title">fee claims → ecosystem</div>
+    <div class="claims-list" id="claims-list">
+      <!-- Claims loaded via JS -->
+    </div>
+    <div class="claims-totals" id="claims-totals">
+      <!-- Totals loaded via JS -->
+    </div>
+  </div>
+  
   <!-- LIVE CHART EMBED -->
   <div class="chart-section">
     <div class="section-title">live chart</div>
@@ -1766,6 +1880,56 @@ function seedActivity() {
 setTimeout(seedActivity, 3000);
 fetchTokenData();
 setInterval(fetchTokenData, REFRESH_INTERVAL);
+
+// Fetch and display fee claims
+async function fetchClaims() {
+  try {
+    const res = await fetch('/claims.json?' + Date.now());
+    const data = await res.json();
+    
+    const listEl = document.getElementById('claims-list');
+    const totalsEl = document.getElementById('claims-totals');
+    
+    if (!data.claims || data.claims.length === 0) {
+      listEl.innerHTML = '<div class="claim-item"><span style="color: rgba(140,150,180,0.5)">no claims yet</span></div>';
+      return;
+    }
+    
+    // Render claims (newest first)
+    listEl.innerHTML = data.claims.slice().reverse().map(claim => `
+      <div class="claim-item">
+        <div>
+          <span class="claim-date">${claim.date} ${claim.time}</span>
+          <span class="claim-amount">+${claim.amount_sol.toFixed(4)} SOL (~$${claim.amount_usd.toFixed(2)})</span>
+        </div>
+        <span class="claim-action ${claim.action}">${claim.action}</span>
+      </div>
+    `).join('');
+    
+    // Render totals
+    const t = data.totals;
+    totalsEl.innerHTML = `
+      <div class="claims-total-item">
+        <div class="claims-total-label">total claimed</div>
+        <div class="claims-total-value">${t.total_claimed_sol.toFixed(4)} SOL</div>
+      </div>
+      <div class="claims-total-item">
+        <div class="claims-total-label">buybacks</div>
+        <div class="claims-total-value">${t.total_buybacks}</div>
+      </div>
+      <div class="claims-total-item">
+        <div class="claims-total-label">burns</div>
+        <div class="claims-total-value">${t.total_burns}</div>
+      </div>
+    `;
+    
+  } catch (err) {
+    console.error('Failed to fetch claims:', err);
+  }
+}
+
+fetchClaims();
+setInterval(fetchClaims, 60000); // Refresh claims every minute
 
 // Occasional random activity
 setInterval(() => {
