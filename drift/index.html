@@ -772,27 +772,6 @@ canvas#cursor-trail {
   text-align: center;
 }
 
-.tweets-container {
-  position: relative;
-  width: 100%;
-  max-width: 450px;
-  max-height: 400px;
-  margin: 0 auto 30px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: rgba(20, 15, 35, 0.5);
-  border: 1px solid rgba(120, 100, 170, 0.15);
-}
-
-.tweets-loading {
-  padding: 50px 20px;
-  text-align: center;
-  font-size: 0.8rem;
-  color: rgba(140, 150, 180, 0.5);
-  letter-spacing: 0.1em;
-  animation: voidBreathe 3s ease-in-out infinite;
-}
-
 .social-links {
   display: flex;
   justify-content: center;
@@ -817,6 +796,106 @@ canvas#cursor-trail {
   background: rgba(120, 100, 160, 0.25);
   border-color: rgba(150, 130, 200, 0.4);
   transform: translateY(-2px);
+}
+
+/* Community Card */
+.community-card {
+  text-align: center;
+  padding: 30px;
+  margin: 20px auto 30px;
+  max-width: 320px;
+  background: rgba(20, 15, 35, 0.6);
+  border: 1px solid rgba(120, 100, 170, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+}
+
+.community-card:hover {
+  border-color: rgba(150, 130, 200, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 40px rgba(100, 80, 160, 0.2);
+}
+
+.community-avatar {
+  font-size: 3rem;
+  margin-bottom: 12px;
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+.community-name {
+  font-size: 1.1rem;
+  color: rgba(200, 180, 255, 0.9);
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.community-bio {
+  font-size: 0.8rem;
+  color: rgba(160, 150, 200, 0.6);
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.follow-btn {
+  display: inline-block;
+  padding: 12px 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  color: rgba(200, 180, 255, 0.9);
+  background: linear-gradient(135deg, rgba(100, 80, 160, 0.3) 0%, rgba(80, 60, 140, 0.2) 100%);
+  border: 1px solid rgba(140, 110, 200, 0.4);
+  border-radius: 8px;
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  transition: all 0.3s ease;
+}
+
+.follow-btn:hover {
+  color: rgba(230, 210, 255, 1);
+  border-color: rgba(170, 140, 230, 0.6);
+  box-shadow: 0 0 25px rgba(130, 100, 200, 0.3);
+  transform: translateY(-2px);
+}
+
+.community-cta {
+  margin-top: 35px;
+  text-align: center;
+}
+
+.cta-text {
+  font-size: 0.75rem;
+  color: rgba(140, 150, 180, 0.5);
+  letter-spacing: 0.12em;
+  text-transform: lowercase;
+  margin-bottom: 15px;
+}
+
+.telegram-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.9rem;
+  color: rgba(140, 200, 220, 0.95);
+  background: linear-gradient(135deg, rgba(60, 140, 180, 0.2) 0%, rgba(40, 120, 160, 0.15) 100%);
+  border: 1px solid rgba(80, 160, 200, 0.35);
+  border-radius: 10px;
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  transition: all 0.3s ease;
+}
+
+.telegram-btn:hover {
+  color: rgba(180, 230, 255, 1);
+  border-color: rgba(100, 180, 220, 0.6);
+  box-shadow: 0 0 30px rgba(60, 140, 200, 0.25);
+  transform: translateY(-2px);
+}
+
+.tg-icon {
+  font-size: 1.1rem;
 }
 
 /* ====== VERIFICATION MODAL ====== */
@@ -1578,19 +1657,24 @@ canvas#cursor-trail {
   <section class="tab-panel" id="panel-community">
     <div class="community-section">
       <div class="section-title">whispers from the wind</div>
-      <div class="tweets-container" id="tweets-container">
-        <a class="twitter-timeline" 
-           data-theme="dark"
-           data-chrome="noheader nofooter noborders transparent"
-           data-tweet-limit="5"
-           href="https://twitter.com/zephyraalpha?ref_src=twsrc%5Etfw">
-          <div class="tweets-loading">channeling @zephyraalpha...</div>
-        </a>
+      
+      <div class="community-card">
+        <div class="community-avatar">🌬️</div>
+        <div class="community-name">@zephyraalpha</div>
+        <p class="community-bio">cryptic transmissions from the drift. alpha in the wind.</p>
+        <a href="https://x.com/zephyraalpha" target="_blank" class="follow-btn">follow the wind →</a>
       </div>
       
       <div class="social-links">
         <a href="https://x.com/zephyraalpha" target="_blank" class="social-link">𝕏 twitter</a>
         <a href="https://t.me/+Rtjv2RCkUx4zMDk0" target="_blank" class="social-link">telegram</a>
+      </div>
+      
+      <div class="community-cta">
+        <p class="cta-text">join the trenches</p>
+        <a href="https://t.me/+Rtjv2RCkUx4zMDk0" target="_blank" class="telegram-btn">
+          <span class="tg-icon">✈</span> enter telegram
+        </a>
       </div>
     </div>
   </section>
@@ -1665,8 +1749,6 @@ END WALLET VERIFICATION DISABLED -->
 
 <!-- Chart.js for holder graph -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-<!-- Twitter widget -->
-<script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 
 <script>
 // ====== TAB SYSTEM ======
