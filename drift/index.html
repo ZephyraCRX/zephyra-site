@@ -1881,11 +1881,40 @@ setTimeout(seedActivity, 3000);
 fetchTokenData();
 setInterval(fetchTokenData, REFRESH_INTERVAL);
 
+// Fee claims data (updated by zephyra)
+const CLAIMS_DATA = {
+  "claims": [
+    {
+      "date": "2026-02-20",
+      "time": "08:28 UTC",
+      "amount_sol": 0.0848,
+      "amount_usd": 14.42,
+      "action": "buyback",
+      "details": "claimed → bought 196,848 $ZEPHY"
+    },
+    {
+      "date": "2026-02-20",
+      "time": "10:38 UTC",
+      "amount_sol": 0.0125,
+      "amount_usd": 2.12,
+      "action": "buyback",
+      "details": "claimed → bought ~196k $ZEPHY"
+    }
+  ],
+  "totals": {
+    "total_claimed_sol": 0.0973,
+    "total_claimed_usd": 16.54,
+    "total_buybacks": 2,
+    "total_burns": 0,
+    "total_liquidity_adds": 0,
+    "total_holder_rewards": 0
+  }
+};
+
 // Fetch and display fee claims
 async function fetchClaims() {
   try {
-    const res = await fetch('/claims.json?' + Date.now());
-    const data = await res.json();
+    const data = CLAIMS_DATA;
     
     const listEl = document.getElementById('claims-list');
     const totalsEl = document.getElementById('claims-totals');
