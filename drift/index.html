@@ -1643,10 +1643,21 @@ canvas#cursor-trail {
   <!-- CLAIMS TAB -->
   <section class="tab-panel" id="panel-claims">
     <div class="claims-section">
-      <div class="claims-title">fee claims → ecosystem</div>
+      <div class="claims-title">fee claims</div>
       <div class="claims-list" id="claims-list">
         <!-- Claims loaded via JS -->
       </div>
+      
+      <div class="claims-title" style="margin-top: 24px;">buybacks</div>
+      <div class="claims-list" id="buybacks-list">
+        <!-- Buybacks loaded via JS -->
+      </div>
+      
+      <div class="claims-title" style="margin-top: 24px;">burns</div>
+      <div class="claims-list" id="burns-list">
+        <!-- Burns loaded via JS -->
+      </div>
+      
       <div class="claims-totals" id="claims-totals">
         <!-- Totals loaded via JS -->
       </div>
@@ -2061,131 +2072,133 @@ setTimeout(seedActivity, 2000);
 fetchTokenData();
 setInterval(fetchTokenData, REFRESH_INTERVAL);
 
-// Fee claims - fetched live from blockchain
-const ZEPHY_WALLET = 'ZephrSGdxn4rjqg4yDNMY6ghEkRdd6z8DZE24c5ynbn';
-const SOLANA_RPC = 'https://api.mainnet-beta.solana.com';
-let claimsCache = null;
-let lastClaimsFetch = 0;
+// Fee claims, buybacks, and burns - fetched from claims.json
+let ecosystemCache = null;
+let lastEcosystemFetch = 0;
 
-async function fetchClaimsFromChain() {
-  const listEl = document.getElementById('claims-list');
+async function fetchEcosystemData() {
+  const claimsListEl = document.getElementById('claims-list');
+  const buybacksListEl = document.getElementById('buybacks-list');
+  const burnsListEl = document.getElementById('burns-list');
   const totalsEl = document.getElementById('claims-totals');
   
   // Show loading on first load
-  if (!claimsCache) {
-    listEl.innerHTML = '<div class="claim-item"><span style="color: rgba(140,150,180,0.5)">loading from blockchain...</span></div>';
+  if (!ecosystemCache) {
+    claimsListEl.innerHTML = '<div class="claim-item"><span style="color: rgba(140,150,180,0.5)">loading...</span></div>';
+    buybacksListEl.innerHTML = '<div class="claim-item"><span style="color: rgba(140,150,180,0.5)">loading...</span></div>';
+    burnsListEl.innerHTML = '<div class="claim-item"><span style="color: rgba(140,150,180,0.5)">loading...</span></div>';
   }
   
   // Cache for 5 minutes
-  if (claimsCache && Date.now() - lastClaimsFetch < 300000) {
-    renderClaims(claimsCache, listEl, totalsEl);
+  if (ecosystemCache && Date.now() - lastEcosystemFetch < 300000) {
+    renderEcosystem(ecosystemCache, claimsListEl, buybacksListEl, burnsListEl, totalsEl);
     return;
   }
   
   try {
-    // Get transaction signatures
-    const sigRes = await fetch(SOLANA_RPC, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jsonrpc: '2.0', id: 1,
-        method: 'getSignaturesForAddress',
-        params: [ZEPHY_WALLET, { limit: 50 }]
-      })
-    });
-    const sigData = await sigRes.json();
-    const signatures = sigData.result || [];
+    const res = await fetch('claims.json?t=' + Date.now());
+    const data = await res.json();
     
-    // Fetch each transaction and find fee claims
-    const claims = [];
-    for (const sig of signatures.slice(0, 20)) { // Check last 20 txs
-      try {
-        const txRes = await fetch(SOLANA_RPC, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            jsonrpc: '2.0', id: 1,
-            method: 'getTransaction',
-            params: [sig.signature, { encoding: 'jsonParsed', maxSupportedTransactionVersion: 0 }]
-          })
-        });
-        const txData = await txRes.json();
-        const tx = txData.result;
-        
-        if (tx && tx.meta) {
-          const pre = tx.meta.preBalances || [];
-          const post = tx.meta.postBalances || [];
-          if (pre.length && post.length) {
-            const solChange = (post[0] - pre[0]) / 1e9;
-            // Fee claims are positive SOL changes > 0.001
-            if (solChange > 0.001) {
-              const date = new Date(tx.blockTime * 1000);
-              claims.push({
-                signature: sig.signature,
-                amount_sol: solChange,
-                timestamp: tx.blockTime,
-                date: date.toISOString().split('T')[0],
-                time: date.toUTCString().split(' ')[4].slice(0,5) + ' UTC'
-              });
-            }
-          }
-        }
-      } catch (e) { /* skip failed tx */ }
-    }
-    
-    claimsCache = claims;
-    lastClaimsFetch = Date.now();
-    renderClaims(claims, listEl, totalsEl);
+    ecosystemCache = data;
+    lastEcosystemFetch = Date.now();
+    renderEcosystem(data, claimsListEl, buybacksListEl, burnsListEl, totalsEl);
     
   } catch (err) {
-    console.error('Failed to fetch claims from chain:', err);
-    if (!claimsCache) {
-      listEl.innerHTML = '<div class="claim-item"><span style="color: rgba(140,150,180,0.5)">failed to load claims</span></div>';
+    console.error('Failed to fetch ecosystem data:', err);
+    if (!ecosystemCache) {
+      claimsListEl.innerHTML = '<div class="claim-item"><span style="color: rgba(140,150,180,0.5)">failed to load</span></div>';
     }
   }
 }
 
-function renderClaims(claims, listEl, totalsEl) {
-  if (!claims || claims.length === 0) {
-    listEl.innerHTML = '<div class="claim-item"><span style="color: rgba(140,150,180,0.5)">no claims yet</span></div>';
-    return;
-  }
+function renderEcosystem(data, claimsListEl, buybacksListEl, burnsListEl, totalsEl) {
+  const claims = data.claims || [];
+  const totals = data.totals || {};
+  const solPrice = window.currentSolPrice || 170;
   
-  // Sort by timestamp descending
-  claims.sort((a, b) => b.timestamp - a.timestamp);
-  
-  const solPrice = window.currentSolPrice || 170; // Use price from token data if available
-  
-  listEl.innerHTML = claims.map(claim => `
-    <div class="claim-item">
-      <div>
-        <span class="claim-date">${claim.date} ${claim.time}</span>
-        <span class="claim-amount">+${claim.amount_sol.toFixed(4)} SOL (~$${(claim.amount_sol * solPrice).toFixed(2)})</span>
+  // Separate by type - all claims are fee claims, buyback is the action taken
+  const feeClaimsHtml = claims.length > 0 ? claims.map(item => {
+    const txLink = item.tx ? 
+      `<a href="https://solscan.io/tx/${item.tx}" target="_blank" class="claim-action claimed" style="text-decoration:none">view tx</a>` :
+      `<span class="claim-action" style="color: rgba(140,150,180,0.5)">pending</span>`;
+    return `
+      <div class="claim-item">
+        <div>
+          <span class="claim-date">${item.date} ${item.time}</span>
+          <span class="claim-amount">+${item.amount_sol.toFixed(4)} SOL (~$${item.amount_usd.toFixed(2)})</span>
+        </div>
+        ${txLink}
       </div>
-      <a href="https://solscan.io/tx/${claim.signature}" target="_blank" class="claim-action claimed" style="text-decoration:none">view tx</a>
-    </div>
-  `).join('');
+    `;
+  }).join('') : '<div class="claim-item"><span style="color: rgba(140,150,180,0.5)">no claims yet</span></div>';
   
-  const totalSol = claims.reduce((sum, c) => sum + c.amount_sol, 0);
+  // Buybacks - filter claims that resulted in buybacks
+  const buybacks = claims.filter(c => c.action === 'buyback' && c.details && c.details.includes('bought'));
+  const buybacksHtml = buybacks.length > 0 ? buybacks.map(item => {
+    const zephy = item.details.match(/(\d[\d,]*)\s*\$?ZEPHY/i);
+    const zephyAmount = zephy ? zephy[1] : '?';
+    const txLink = item.tx ? 
+      `<a href="https://solscan.io/tx/${item.tx}" target="_blank" class="claim-action claimed" style="text-decoration:none;color:#7fefbd">view tx</a>` :
+      `<span class="claim-action" style="color: rgba(140,150,180,0.5)">pending</span>`;
+    return `
+      <div class="claim-item">
+        <div>
+          <span class="claim-date">${item.date} ${item.time}</span>
+          <span class="claim-amount" style="color:#7fefbd">${item.amount_sol.toFixed(4)} SOL → ${zephyAmount} $ZEPHY</span>
+        </div>
+        ${txLink}
+      </div>
+    `;
+  }).join('') : '<div class="claim-item"><span style="color: rgba(140,150,180,0.5)">no buybacks yet</span></div>';
+  
+  // Burns - filter for burn actions (future)
+  const burns = claims.filter(c => c.action === 'burn');
+  const burnsHtml = burns.length > 0 ? burns.map(item => {
+    const txLink = item.tx ? 
+      `<a href="https://solscan.io/tx/${item.tx}" target="_blank" class="claim-action claimed" style="text-decoration:none;color:#ff6b6b">view tx</a>` :
+      `<span class="claim-action" style="color: rgba(140,150,180,0.5)">pending</span>`;
+    return `
+      <div class="claim-item">
+        <div>
+          <span class="claim-date">${item.date} ${item.time}</span>
+          <span class="claim-amount" style="color:#ff6b6b">🔥 ${item.details || 'burned'}</span>
+        </div>
+        ${txLink}
+      </div>
+    `;
+  }).join('') : '<div class="claim-item"><span style="color: rgba(140,150,180,0.5)">no burns yet</span></div>';
+  
+  claimsListEl.innerHTML = feeClaimsHtml;
+  buybacksListEl.innerHTML = buybacksHtml;
+  burnsListEl.innerHTML = burnsHtml;
+  
+  // Totals
+  const pendingCount = totals.total_pending || 0;
   totalsEl.innerHTML = `
     <div class="claims-total-item">
       <div class="claims-total-label">total claimed</div>
-      <div class="claims-total-value">${totalSol.toFixed(4)} SOL</div>
+      <div class="claims-total-value">${(totals.total_claimed_sol || 0).toFixed(4)} SOL</div>
     </div>
     <div class="claims-total-item">
-      <div class="claims-total-label">claims</div>
-      <div class="claims-total-value">${claims.length}</div>
+      <div class="claims-total-label">buybacks</div>
+      <div class="claims-total-value" style="color:#7fefbd">${totals.total_buybacks || 0}</div>
     </div>
     <div class="claims-total-item">
-      <div class="claims-total-label">source</div>
-      <div class="claims-total-value">live</div>
+      <div class="claims-total-label">burns</div>
+      <div class="claims-total-value" style="color:#ff6b6b">${totals.total_burns || 0}</div>
     </div>
+    ${pendingCount > 0 ? `
+    <div class="claims-total-item">
+      <div class="claims-total-label">pending</div>
+      <div class="claims-total-value" style="color:rgba(140,150,180,0.7)">${pendingCount}</div>
+    </div>
+    ` : ''}
   `;
 }
 
 // Initial fetch and refresh every 10 minutes
-fetchClaimsFromChain();
-setInterval(fetchClaimsFromChain, 600000);
+fetchEcosystemData();
+setInterval(fetchEcosystemData, 600000);
 
 setInterval(() => {
   if (Math.random() > 0.6) {
